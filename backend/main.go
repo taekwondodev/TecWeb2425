@@ -18,7 +18,10 @@ func main() {
 	authService := service.NewAuthService(authRepo, &config.JWT{})
 	authController := controller.NewAuthController(authService)
 
-	router := api.SetupRoutes(authController)
+	imageService := service.NewImageService()
+	imageController := controller.NewImageController(imageService)
+
+	router := api.SetupRoutes(authController, imageController)
 	server := api.NewServer(":80", router)
 	if err := server.Start(); err != nil {
 		panic(err)

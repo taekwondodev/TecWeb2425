@@ -8,23 +8,36 @@ import (
 
 var router *http.ServeMux
 
-func SetupRoutes(authController *controller.AuthController) *http.ServeMux {
+func SetupRoutes(authController *controller.AuthController, imageController *controller.ImageController) *http.ServeMux {
 	router = http.NewServeMux()
 
 	setupAuthRoutes(authController)
+	setupImageRoutes(imageController)
 
 	return router
 }
 
-func applyMiddleware(h middleware.HandlerFunc) http.HandlerFunc {
-	return middleware.ErrorHandler(middleware.Chain(
-		middleware.TrustProxyMiddleware,
-		middleware.LoggingMiddleware,
-	)(h))
+func setupAuthRoutes(authController *controller.AuthController) {
+	router.Handle("POST /auth/register", authMiddleware(authController.Register))
+	router.Handle("POST /auth/login", authMiddleware(authController.Login))
+	router.Handle("POST /auth/refresh", authMiddleware(authController.Refresh))
 }
 
-func setupAuthRoutes(authController *controller.AuthController) {
-	router.Handle("POST /register", applyMiddleware(authController.Register))
-	router.Handle("POST /login", applyMiddleware(authController.Login))
-	router.Handle("POST /refresh", applyMiddleware(authController.Refresh))
+func setupImageRoutes(imageController *controller.ImageController) {
+	router.Handle("GET /images/{filename}", imageMiddleware(imageController.GetImage))
+	router.Handle("POST /images/upload", imageMiddleware(imageController.UploadImage))
+}
+
+func authMiddleware(h middleware.HandlerFunc) http.HandlerFunc {
+	return middleware.ErrorHandler(
+		middleware.LoggingMiddleware(h),
+	)
+}
+
+func imageMiddleware(h middleware.HandlerFunc) http.HandlerFunc {
+	return middleware.ErrorHandler(
+		middleware.LoggingMiddleware(
+			middleware.AuthMiddleware(h),
+		),
+	)
 }

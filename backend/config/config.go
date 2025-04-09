@@ -9,6 +9,10 @@ import (
 var JwtSecret []byte
 var DbURL string
 var DbConnStr string
+var UploadDir string
+
+const MaxFileSize int64 = 5 << 20 // 5MB
+var AllowedTypes []string = []string{"image/jpeg", "image/png", "image/gif"}
 
 func LoadEnv() {
 	jwtSecret := os.Getenv("JWT_SECRET")
@@ -29,5 +33,10 @@ func LoadEnv() {
 	)
 	if DbConnStr == "" {
 		log.Fatal("DB connection string not defined")
+	}
+
+	UploadDir = os.Getenv("UPLOAD_DIR")
+	if UploadDir == "" {
+		UploadDir = "./uploads"
 	}
 }

@@ -5,16 +5,12 @@ import (
 	customerrors "backend/customErrors"
 	"backend/dto"
 	"backend/repository"
-	"context"
-	"strings"
-	"time"
 )
 
 type AuthService interface {
 	Register(req dto.AuthRequest) (*dto.AuthResponse, error)
 	Login(req dto.AuthRequest) (*dto.AuthResponse, error)
 	Refresh(req dto.RefreshTokenRequest) (*dto.AuthResponse, error)
-	HealthCheck() (*dto.HealthResponse, error)
 }
 
 type AuthServiceImpl struct {
@@ -87,32 +83,4 @@ func (s *AuthServiceImpl) Refresh(req dto.RefreshTokenRequest) (*dto.AuthRespons
 		Message:     "Update token successfully!",
 		AccessToken: accessToken,
 	}, nil
-}
-
-func (s *AuthServiceImpl) HealthCheck() (*dto.HealthResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
-
-	if err := config.Db.PingContext(ctx); err != nil {
-		switch {
-		case isSSLerror(err):
-			return nil, customerrors.ErrDbSSLHandshakeFailed
-		case ctx.Err() == context.DeadlineExceeded:
-			return nil, customerrors.ErrDbTimeout
-		default:
-			return nil, customerrors.ErrDbUnreacheable
-		}
-	}
-
-	return &dto.HealthResponse{
-		Status:   "OK",
-		Database: "Connected",
-		SslMode:  "verify-full",
-	}, nil
-}
-
-func isSSLerror(err error) bool {
-	return strings.Contains(err.Error(), "SSL") ||
-		strings.Contains(err.Error(), "certificate") ||
-		strings.Contains(err.Error(), "TLS")
 }

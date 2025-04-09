@@ -12,7 +12,6 @@ func SetupRoutes(authController *controller.AuthController) *http.ServeMux {
 	router = http.NewServeMux()
 
 	setupAuthRoutes(authController)
-	setupSystemRoutes(authController)
 
 	return router
 }
@@ -28,8 +27,4 @@ func setupAuthRoutes(authController *controller.AuthController) {
 	router.Handle("POST /register", applyMiddleware(authController.Register))
 	router.Handle("POST /login", applyMiddleware(authController.Login))
 	router.Handle("POST /refresh", applyMiddleware(authController.Refresh))
-}
-
-func setupSystemRoutes(authController *controller.AuthController) {
-	router.Handle("GET /healthz", applyMiddleware(authController.HealthCheck))
 }

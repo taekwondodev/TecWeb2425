@@ -39,11 +39,6 @@ func (m *MockAuthService) Refresh(req dto.RefreshTokenRequest) (*dto.AuthRespons
 	return args.Get(0).(*dto.AuthResponse), args.Error(1)
 }
 
-func (m *MockAuthService) HealthCheck() (*dto.HealthResponse, error) {
-	args := m.Called()
-	return args.Get(0).(*dto.HealthResponse), args.Error(1)
-}
-
 /****************************************************************/
 
 func TestAuthControllerRegisterCorrect(t *testing.T) {

@@ -59,15 +59,6 @@ func (c *AuthController) Refresh(w http.ResponseWriter, r *http.Request) error {
 	return c.respond(w, http.StatusOK, res)
 }
 
-func (c *AuthController) HealthCheck(w http.ResponseWriter, r *http.Request) error {
-	res, err := c.authService.HealthCheck()
-	if err != nil {
-		return err
-	}
-
-	return c.respond(w, http.StatusOK, res)
-}
-
 func (c *AuthController) respond(w http.ResponseWriter, status int, data any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

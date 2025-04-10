@@ -6,8 +6,9 @@ import (
 	"backend/middleware"
 	"backend/service"
 	"encoding/json"
+	"fmt"
 	"net/http"
-	"path/filepath"
+	"strconv"
 )
 
 type MemeController struct {
@@ -18,20 +19,27 @@ func NewMemeController(service service.MemeService) *MemeController {
 	return &MemeController{service: service}
 }
 
-func (c *MemeController) GetImage(w http.ResponseWriter, r *http.Request) error {
-	filename := r.URL.Path[len("/images/"):]
-	if filename == "" {
-		return customerrors.ErrBadRequest
+func (c *MemeController) GetMemes(w http.ResponseWriter, r *http.Request) error {
+	page, err := strconv.Atoi(r.URL.Query().Get("page"))
+	if err != nil || page < 1 {
+		page = 1
 	}
 
-	filePath, err := c.service.GetImage(filename)
+	pageSize, err := strconv.Atoi(r.URL.Query().Get("pageSize"))
+	if err != nil || pageSize < 1 || pageSize > 50 {
+		pageSize = 10
+	}
+
+	res, err := c.service.GetMemes(r.Context(), page, pageSize)
 	if err != nil {
 		return err
 	}
 
-	w.Header().Set("Content-Type", getContentType(filename))
-	http.ServeFile(w, r, filePath)
-	return nil
+	for i := range res.Memes {
+		res.Memes[i].ImagePath = c.buildImageUrl(r, res.Memes[i].ImagePath)
+	}
+
+	return c.respond(w, http.StatusOK, res)
 }
 
 func (c *MemeController) UploadMeme(w http.ResponseWriter, r *http.Request) error {
@@ -66,16 +74,6 @@ func (c *MemeController) respond(w http.ResponseWriter, status int, data any) er
 	return json.NewEncoder(w).Encode(data)
 }
 
-func getContentType(filename string) string {
-	ext := filepath.Ext(filename)
-	switch ext {
-	case ".jpg", ".jpeg":
-		return "image/jpeg"
-	case ".png":
-		return "image/png"
-	case ".gif":
-		return "image/gif"
-	default:
-		return "application/octet-stream"
-	}
+func (c *MemeController) buildImageUrl(r *http.Request, imagePath string) string {
+	return fmt.Sprintf("%s://%s/%s", "http", r.Host, imagePath)
 }

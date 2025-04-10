@@ -4,18 +4,23 @@ import (
 	"backend/config"
 	customerrors "backend/customErrors"
 	"backend/dto"
+	"backend/models"
 	"backend/repository"
+	"context"
 	"io"
+	"math"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type MemeService interface {
-	GetImage(filename string) (string, error)
+	GetMemes(ctx context.Context, page int, pageSize int) (*dto.GetMemeResponse, error)
 	UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, username string) (*dto.MemeUploadResponse, error)
 }
 
@@ -27,13 +32,39 @@ func NewMemeService(repo repository.MemeRepository) MemeService {
 	return &MemeServiceImpl{repo: repo}
 }
 
-func (s *MemeServiceImpl) GetImage(filename string) (string, error) {
-	filePath := filepath.Join(config.UploadDir, filepath.Base(filename))
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		return "", customerrors.ErrImageNotFound
+func (s *MemeServiceImpl) GetMemes(ctx context.Context, page int, pageSize int) (*dto.GetMemeResponse, error) {
+	g, ctx := errgroup.WithContext(ctx)
+
+	var total int
+	var memes []models.Meme
+
+	g.Go(func() error {
+		var err error
+		total, err = s.repo.CountsMeme(ctx)
+		return err
+	})
+
+	g.Go(func() error {
+		var err error
+		memes, err = s.repo.GetMemes(ctx, page, pageSize)
+		return err
+	})
+
+	// Wait for both goroutines to finish and check for errors
+	if err := g.Wait(); err != nil {
+		return nil, err
 	}
 
-	return filePath, nil
+	totalPages := int(math.Ceil(float64(total) / float64(pageSize)))
+
+	response := &dto.GetMemeResponse{
+		Memes:       memes,
+		CurrentPage: page,
+		TotalPages:  totalPages,
+		TotalMemes:  total,
+	}
+
+	return response, nil
 }
 
 func (s *MemeServiceImpl) UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, username string) (*dto.MemeUploadResponse, error) {

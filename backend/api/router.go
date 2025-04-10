@@ -8,11 +8,11 @@ import (
 
 var router *http.ServeMux
 
-func SetupRoutes(authController *controller.AuthController, imageController *controller.MemeController) *http.ServeMux {
+func SetupRoutes(authController *controller.AuthController, memeController *controller.MemeController) *http.ServeMux {
 	router = http.NewServeMux()
 
 	setupAuthRoutes(authController)
-	setupImageRoutes(imageController)
+	setupMemeRoutes(memeController)
 
 	return router
 }
@@ -23,14 +23,14 @@ func setupAuthRoutes(authController *controller.AuthController) {
 	router.Handle("POST /auth/refresh", authMiddleware(authController.Refresh))
 }
 
-func setupImageRoutes(imageController *controller.MemeController) {
+func setupMemeRoutes(memeController *controller.MemeController) {
 	// GET all meme
+	router.Handle("GET /memes", memeMiddleware(memeController.GetMemes))
 	// GET meme by id
-	router.Handle("GET /images/{filename}", imageMiddleware(imageController.GetImage))
 
 	// POST create meme /memes
+	router.Handle("POST /memes/upload", memeMiddleware(memeController.UploadMeme))
 	// POST create comment /memes/{id}/comments
-	router.Handle("POST /images/upload", imageMiddleware(imageController.UploadMeme))
 
 	// PATCH update meme /memes/{id}
 	// PATCH downvote meme /memes/{id}
@@ -42,7 +42,7 @@ func authMiddleware(h middleware.HandlerFunc) http.HandlerFunc {
 	)
 }
 
-func imageMiddleware(h middleware.HandlerFunc) http.HandlerFunc {
+func memeMiddleware(h middleware.HandlerFunc) http.HandlerFunc {
 	return middleware.ErrorHandler(
 		middleware.LoggingMiddleware(
 			middleware.AuthMiddleware(h),

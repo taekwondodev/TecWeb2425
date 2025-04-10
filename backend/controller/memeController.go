@@ -30,7 +30,12 @@ func (c *MemeController) GetMemes(w http.ResponseWriter, r *http.Request) error 
 		pageSize = 10
 	}
 
-	res, err := c.service.GetMemes(r.Context(), page, pageSize)
+	sortBy := r.URL.Query().Get("sortBy")
+	if sortBy == "" {
+		sortBy = "newest" // Default
+	}
+
+	res, err := c.service.GetMemes(r.Context(), page, pageSize, sortBy)
 	if err != nil {
 		return err
 	}

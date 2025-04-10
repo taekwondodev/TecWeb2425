@@ -21,7 +21,7 @@ import (
 )
 
 type MemeService interface {
-	GetMemes(ctx context.Context, page int, pageSize int) (*dto.GetMemeResponse, error)
+	GetMemes(ctx context.Context, page int, pageSize int, sortBy string) (*dto.GetMemeResponse, error)
 	GetDailyMeme() (*models.Meme, error)
 	UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, username string) (*dto.MemeUploadResponse, error)
 }
@@ -37,7 +37,7 @@ func NewMemeService(repo repository.MemeRepository) MemeService {
 	return &MemeServiceImpl{repo: repo}
 }
 
-func (s *MemeServiceImpl) GetMemes(ctx context.Context, page int, pageSize int) (*dto.GetMemeResponse, error) {
+func (s *MemeServiceImpl) GetMemes(ctx context.Context, page int, pageSize int, sortBy string) (*dto.GetMemeResponse, error) {
 	g, ctx := errgroup.WithContext(ctx)
 
 	var total int
@@ -51,7 +51,7 @@ func (s *MemeServiceImpl) GetMemes(ctx context.Context, page int, pageSize int) 
 
 	g.Go(func() error {
 		var err error
-		memes, err = s.repo.GetMemes(ctx, page, pageSize)
+		memes, err = s.repo.GetMemes(ctx, page, pageSize, sortBy)
 		return err
 	})
 
@@ -62,14 +62,12 @@ func (s *MemeServiceImpl) GetMemes(ctx context.Context, page int, pageSize int) 
 
 	totalPages := int(math.Ceil(float64(total) / float64(pageSize)))
 
-	response := &dto.GetMemeResponse{
+	return &dto.GetMemeResponse{
 		Memes:       memes,
 		CurrentPage: page,
 		TotalPages:  totalPages,
 		TotalMemes:  total,
-	}
-
-	return response, nil
+	}, nil
 }
 
 func (s *MemeServiceImpl) GetDailyMeme() (*models.Meme, error) {

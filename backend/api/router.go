@@ -27,7 +27,6 @@ func setupMemeRoutes(memeController *controller.MemeController) {
 	router.Handle("GET /memes", memeMiddleware(memeController.GetMemes))
 	router.Handle("GET /memes/daily", memeMiddleware(memeController.GetDailyMeme))
 
-	// POST create meme /memes
 	router.Handle("POST /memes/upload", memeMiddleware(memeController.UploadMeme))
 	// POST create comment /memes/{id}/comments
 

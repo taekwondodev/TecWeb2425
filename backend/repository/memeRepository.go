@@ -10,7 +10,7 @@ import (
 type MemeRepository interface {
 	SaveMeme(filePath string, tag string, username string) error
 	CountsMeme(ctx context.Context) (int, error)
-	GetMemes(ctx context.Context, page int, pageSize int) ([]models.Meme, error)
+	GetMemes(ctx context.Context, page int, pageSize int, sortBy string) ([]models.Meme, error)
 	GetRandomMeme() (*models.Meme, error)
 }
 
@@ -47,15 +47,27 @@ func (m *MemeRepositoryImpl) CountsMeme(ctx context.Context) (int, error) {
 	return count, nil
 }
 
-func (m *MemeRepositoryImpl) GetMemes(ctx context.Context, page int, pageSize int) ([]models.Meme, error) {
+func (m *MemeRepositoryImpl) GetMemes(ctx context.Context, page int, pageSize int, sortBy string) ([]models.Meme, error) {
 	offset := (page - 1) * pageSize
 
 	query := `
-	SELECT id, tag, image_path, upvotes, downvotes, created_by, created_at
-	FROM memes
-	ORDER BY created_at DESC
-	LIMIT $1 OFFSET $2
-	`
+        SELECT id, tag, image_path, upvotes, downvotes, created_by, created_at
+        FROM memes
+    `
+
+	// ORDER BY in base al parametro
+	switch sortBy {
+	case "upvotes":
+		query += " ORDER BY upvotes DESC"
+	case "downvotes":
+		query += " ORDER BY downvotes DESC"
+	default:
+		query += " ORDER BY created_at DESC"
+	}
+
+	// Aggiungi paginazione
+	query += " LIMIT $1 OFFSET $2"
+
 	rows, err := m.db.QueryContext(ctx, query, pageSize, offset)
 	if err != nil {
 		return nil, err

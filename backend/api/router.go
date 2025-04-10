@@ -24,9 +24,8 @@ func setupAuthRoutes(authController *controller.AuthController) {
 }
 
 func setupMemeRoutes(memeController *controller.MemeController) {
-	// GET all meme
 	router.Handle("GET /memes", memeMiddleware(memeController.GetMemes))
-	// GET meme by id
+	router.Handle("GET /memes/daily", memeMiddleware(memeController.GetDailyMeme))
 
 	// POST create meme /memes
 	router.Handle("POST /memes/upload", memeMiddleware(memeController.UploadMeme))

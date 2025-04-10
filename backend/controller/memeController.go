@@ -42,6 +42,17 @@ func (c *MemeController) GetMemes(w http.ResponseWriter, r *http.Request) error 
 	return c.respond(w, http.StatusOK, res)
 }
 
+func (c *MemeController) GetDailyMeme(w http.ResponseWriter, r *http.Request) error {
+	res, err := c.service.GetDailyMeme()
+	if err != nil {
+		return err
+	}
+
+	res.ImagePath = c.buildImageUrl(r, res.ImagePath)
+
+	return c.respond(w, http.StatusOK, res)
+}
+
 func (c *MemeController) UploadMeme(w http.ResponseWriter, r *http.Request) error {
 	claims, err := middleware.GetClaimsFromContext(r.Context())
 	if err != nil {

@@ -4,12 +4,14 @@ import (
 	"backend/models"
 	"context"
 	"database/sql"
+	"time"
 )
 
 type MemeRepository interface {
 	SaveMeme(filePath string, tag string, username string) error
 	CountsMeme(ctx context.Context) (int, error)
 	GetMemes(ctx context.Context, page int, pageSize int) ([]models.Meme, error)
+	GetRandomMeme() (*models.Meme, error)
 }
 
 type MemeRepositoryImpl struct {
@@ -78,4 +80,27 @@ func (m *MemeRepositoryImpl) GetMemes(ctx context.Context, page int, pageSize in
 	}
 
 	return memes, nil
+}
+
+func (m *MemeRepositoryImpl) GetRandomMeme() (*models.Meme, error) {
+	today := time.Now().UTC().Format("2006-01-02")
+
+	var meme models.Meme
+	// Use postgres function md5 for hashing
+	err := m.db.QueryRow(`
+		SELECT id, tag, image_path, upvotes, downvotes, created_by, created_at
+		FROM memes
+		ORDER BY md5(id::text || $1)
+		LIMIT 1
+	`, today).Scan(
+		&meme.ID, &meme.Tag, &meme.ImagePath,
+		&meme.Upvotes, &meme.Downvotes,
+		&meme.CreatedBy, &meme.CreatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &meme, nil
 }

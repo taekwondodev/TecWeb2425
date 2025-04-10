@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"sync"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -21,11 +22,15 @@ import (
 
 type MemeService interface {
 	GetMemes(ctx context.Context, page int, pageSize int) (*dto.GetMemeResponse, error)
+	GetDailyMeme() (*models.Meme, error)
 	UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, username string) (*dto.MemeUploadResponse, error)
 }
 
 type MemeServiceImpl struct {
-	repo repository.MemeRepository
+	repo       repository.MemeRepository
+	cache      *models.Meme
+	lastUpdate time.Time
+	mu         sync.RWMutex
 }
 
 func NewMemeService(repo repository.MemeRepository) MemeService {
@@ -65,6 +70,36 @@ func (s *MemeServiceImpl) GetMemes(ctx context.Context, page int, pageSize int) 
 	}
 
 	return response, nil
+}
+
+func (s *MemeServiceImpl) GetDailyMeme() (*models.Meme, error) {
+	// read only
+	s.mu.RLock()
+	cached := s.cache
+	lastUpdate := s.lastUpdate
+	s.mu.RUnlock()
+
+	if isCacheValid(cached, lastUpdate) {
+		return cached, nil
+	}
+
+	// write lock
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if isCacheValid(s.cache, s.lastUpdate) {
+		return s.cache, nil
+	}
+
+	meme, err := s.repo.GetRandomMeme()
+	if err != nil {
+		return nil, err
+	}
+
+	s.cache = meme
+	s.lastUpdate = time.Now()
+
+	return meme, nil
 }
 
 func (s *MemeServiceImpl) UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, username string) (*dto.MemeUploadResponse, error) {
@@ -130,4 +165,8 @@ func (s *MemeServiceImpl) saveFile(src multipart.File, dstPath string) error {
 	}
 
 	return nil
+}
+
+func isCacheValid(cache *models.Meme, lastUpdate time.Time) bool {
+	return cache != nil && time.Since(lastUpdate) < 24*time.Hour
 }

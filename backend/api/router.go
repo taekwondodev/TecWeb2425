@@ -8,7 +8,7 @@ import (
 
 var router *http.ServeMux
 
-func SetupRoutes(authController *controller.AuthController, imageController *controller.ImageController) *http.ServeMux {
+func SetupRoutes(authController *controller.AuthController, imageController *controller.MemeController) *http.ServeMux {
 	router = http.NewServeMux()
 
 	setupAuthRoutes(authController)
@@ -23,9 +23,17 @@ func setupAuthRoutes(authController *controller.AuthController) {
 	router.Handle("POST /auth/refresh", authMiddleware(authController.Refresh))
 }
 
-func setupImageRoutes(imageController *controller.ImageController) {
+func setupImageRoutes(imageController *controller.MemeController) {
+	// GET all meme
+	// GET meme by id
 	router.Handle("GET /images/{filename}", imageMiddleware(imageController.GetImage))
-	router.Handle("POST /images/upload", imageMiddleware(imageController.UploadImage))
+
+	// POST create meme /memes
+	// POST create comment /memes/{id}/comments
+	router.Handle("POST /images/upload", imageMiddleware(imageController.UploadMeme))
+
+	// PATCH update meme /memes/{id}
+	// PATCH downvote meme /memes/{id}
 }
 
 func authMiddleware(h middleware.HandlerFunc) http.HandlerFunc {

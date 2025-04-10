@@ -3,21 +3,22 @@ package controller
 import (
 	"backend/config"
 	customerrors "backend/customErrors"
+	"backend/middleware"
 	"backend/service"
 	"encoding/json"
 	"net/http"
 	"path/filepath"
 )
 
-type ImageController struct {
-	service service.ImageService
+type MemeController struct {
+	service service.MemeService
 }
 
-func NewImageController(service service.ImageService) *ImageController {
-	return &ImageController{service: service}
+func NewMemeController(service service.MemeService) *MemeController {
+	return &MemeController{service: service}
 }
 
-func (c *ImageController) GetImage(w http.ResponseWriter, r *http.Request) error {
+func (c *MemeController) GetImage(w http.ResponseWriter, r *http.Request) error {
 	filename := r.URL.Path[len("/images/"):]
 	if filename == "" {
 		return customerrors.ErrBadRequest
@@ -33,10 +34,17 @@ func (c *ImageController) GetImage(w http.ResponseWriter, r *http.Request) error
 	return nil
 }
 
-func (c *ImageController) UploadImage(w http.ResponseWriter, r *http.Request) error {
+func (c *MemeController) UploadMeme(w http.ResponseWriter, r *http.Request) error {
+	claims, err := middleware.GetClaimsFromContext(r.Context())
+	if err != nil {
+		return customerrors.ErrInvalidCredentials
+	}
+
 	if err := r.ParseMultipartForm(config.MaxFileSize); err != nil {
 		return customerrors.ErrBadRequest
 	}
+
+	tag := r.FormValue("tag")
 
 	file, header, err := r.FormFile("image")
 	if err != nil {
@@ -44,15 +52,15 @@ func (c *ImageController) UploadImage(w http.ResponseWriter, r *http.Request) er
 	}
 	defer file.Close()
 
-	res, err := c.service.UploadImage(file, header)
+	res, err := c.service.UploadMeme(file, header, tag, claims.Username)
 	if err != nil {
 		return err
 	}
 
-	return c.respond(w, http.StatusOK, res)
+	return c.respond(w, http.StatusCreated, res)
 }
 
-func (c *ImageController) respond(w http.ResponseWriter, status int, data any) error {
+func (c *MemeController) respond(w http.ResponseWriter, status int, data any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	return json.NewEncoder(w).Encode(data)

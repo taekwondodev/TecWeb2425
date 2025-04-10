@@ -11,7 +11,7 @@ var DbURL string
 var DbConnStr string
 var UploadDir string
 
-const MaxFileSize int64 = 5 << 20 // 5MB
+const MaxFileSize int64 = 10 << 20 // 10MB
 var AllowedTypes []string = []string{"image/jpeg", "image/png", "image/gif"}
 
 func LoadEnv() {

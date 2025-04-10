@@ -4,6 +4,7 @@ import (
 	"backend/config"
 	customerrors "backend/customErrors"
 	"backend/dto"
+	"backend/repository"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -13,18 +14,20 @@ import (
 	"time"
 )
 
-type ImageService interface {
+type MemeService interface {
 	GetImage(filename string) (string, error)
-	UploadImage(file multipart.File, header *multipart.FileHeader) (*dto.ImageUploadResponse, error)
+	UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, username string) (*dto.MemeUploadResponse, error)
 }
 
-type ImageServiceImpl struct{}
-
-func NewImageService() ImageService {
-	return &ImageServiceImpl{}
+type MemeServiceImpl struct {
+	repo repository.MemeRepository
 }
 
-func (s *ImageServiceImpl) GetImage(filename string) (string, error) {
+func NewMemeService(repo repository.MemeRepository) MemeService {
+	return &MemeServiceImpl{repo: repo}
+}
+
+func (s *MemeServiceImpl) GetImage(filename string) (string, error) {
 	filePath := filepath.Join(config.UploadDir, filepath.Base(filename))
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		return "", customerrors.ErrImageNotFound
@@ -33,7 +36,7 @@ func (s *ImageServiceImpl) GetImage(filename string) (string, error) {
 	return filePath, nil
 }
 
-func (s *ImageServiceImpl) UploadImage(file multipart.File, header *multipart.FileHeader) (*dto.ImageUploadResponse, error) {
+func (s *MemeServiceImpl) UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, username string) (*dto.MemeUploadResponse, error) {
 	if err := s.validateFileType(file); err != nil {
 		return nil, err
 	}
@@ -41,18 +44,23 @@ func (s *ImageServiceImpl) UploadImage(file multipart.File, header *multipart.Fi
 	// generate a unique file name
 	ext := filepath.Ext(header.Filename)
 	fileName := strconv.FormatInt(time.Now().UnixNano(), 10) + ext
-	filepath := filepath.Join(config.UploadDir, fileName)
+	filePath := filepath.Join(config.UploadDir, fileName)
 
-	if err := s.saveFile(file, filepath); err != nil {
+	if err := s.saveFile(file, filePath); err != nil {
 		return nil, err
 	}
 
-	return &dto.ImageUploadResponse{
-		Message: "Image uploaded successfully",
+	if err := s.repo.SaveMeme(filePath, tag, username); err != nil {
+		os.Remove(filePath)
+		return nil, customerrors.ErrInternalServer
+	}
+
+	return &dto.MemeUploadResponse{
+		Message: "Meme uploaded successfully",
 	}, nil
 }
 
-func (s *ImageServiceImpl) validateFileType(file multipart.File) error {
+func (s *MemeServiceImpl) validateFileType(file multipart.File) error {
 	buff := make([]byte, 512)
 	if _, err := file.Read(buff); err != nil {
 		return customerrors.ErrInternalServer
@@ -78,7 +86,7 @@ func (s *ImageServiceImpl) validateFileType(file multipart.File) error {
 	return nil
 }
 
-func (s *ImageServiceImpl) saveFile(src multipart.File, dstPath string) error {
+func (s *MemeServiceImpl) saveFile(src multipart.File, dstPath string) error {
 	out, err := os.Create(dstPath)
 	if err != nil {
 		return customerrors.ErrInternalServer
@@ -86,6 +94,7 @@ func (s *ImageServiceImpl) saveFile(src multipart.File, dstPath string) error {
 	defer out.Close()
 
 	if _, err = io.Copy(out, src); err != nil {
+		os.Remove(dstPath)
 		return customerrors.ErrInternalServer
 	}
 

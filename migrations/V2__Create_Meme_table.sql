@@ -1,0 +1,17 @@
+CREATE TABLE memes (
+    id SERIAL PRIMARY KEY,
+    tag TEXT NOT NULL,
+    image_path TEXT NOT NULL,
+    upvotes INTEGER DEFAULT 0,
+    downvotes INTEGER DEFAULT 0,
+    created_by TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE comments (
+    id SERIAL PRIMARY KEY,
+    meme_id INTEGER REFERENCES memes(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

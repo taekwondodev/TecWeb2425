@@ -38,8 +38,8 @@ func (m *MockUserRepository) GetUserByCredentials(username string, password stri
 	return args.Get(0).(*models.User), args.Error(1)
 }
 
-func (m *MockToken) GenerateJWT(username string, email string) (string, string, error) {
-	args := m.Called(username, email)
+func (m *MockToken) GenerateJWT(username string, email string, id int) (string, string, error) {
+	args := m.Called(username, email, id)
 	return args.String(0), args.String(1), args.Error(2)
 }
 

@@ -8,7 +8,7 @@ import (
 )
 
 type MemeRepository interface {
-	SaveMeme(filePath string, tag string, username string) error
+	SaveMeme(filePath string, tag string, id int) error
 	CountsMeme(ctx context.Context) (int, error)
 	GetMemes(ctx context.Context, page int, pageSize int, sortBy string) ([]models.Meme, error)
 	GetRandomMeme() (*models.Meme, error)
@@ -22,14 +22,14 @@ func NewMemeRepository(db *sql.DB) MemeRepository {
 	return &MemeRepositoryImpl{db: db}
 }
 
-func (m *MemeRepositoryImpl) SaveMeme(filePath string, tag string, username string) error {
+func (m *MemeRepositoryImpl) SaveMeme(filePath string, tag string, id int) error {
 	query := "INSERT INTO memes (tag, image_path, created_by) VALUES ($1, $2, $3)"
 
 	_, err := m.db.Exec(
 		query,
 		tag,
 		filePath,
-		username,
+		id,
 	)
 
 	return err

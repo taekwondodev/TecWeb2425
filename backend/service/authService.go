@@ -48,7 +48,7 @@ func (s *AuthServiceImpl) Login(req dto.AuthRequest) (*dto.AuthResponse, error) 
 		return nil, err
 	}
 
-	accessToken, refreshToken, err := s.jwt.GenerateJWT(user.Username, user.Email)
+	accessToken, refreshToken, err := s.jwt.GenerateJWT(user.Username, user.Email, user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (s *AuthServiceImpl) Refresh(req dto.RefreshTokenRequest) (*dto.AuthRespons
 		return nil, err
 	}
 
-	accessToken, _, err := s.jwt.GenerateJWT(claims.Username, claims.Email)
+	accessToken, _, err := s.jwt.GenerateJWT(claims.Username, claims.Email, claims.Id)
 	if err != nil {
 		return nil, err
 	}

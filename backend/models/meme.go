@@ -10,5 +10,5 @@ type Meme struct {
 	Downvotes int       `json:"downvotes"`
 	Comments  []Comment `json:"comments,omitzero"`
 	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string    `json:"createdBy"`
+	CreatedBy int       `json:"createdBy"`
 }

@@ -12,6 +12,7 @@ type MemeRepository interface {
 	CountsMeme(ctx context.Context) (int, error)
 	GetMemes(ctx context.Context, page int, pageSize int, sortBy string) ([]models.Meme, error)
 	GetRandomMeme() (*models.Meme, error)
+	BeginTransaction(ctx context.Context) (VoteRepository, error)
 }
 
 type MemeRepositoryImpl struct {
@@ -115,4 +116,12 @@ func (m *MemeRepositoryImpl) GetRandomMeme() (*models.Meme, error) {
 	}
 
 	return &meme, nil
+}
+
+func (m *MemeRepositoryImpl) BeginTransaction(ctx context.Context) (VoteRepository, error) {
+	tx, err := m.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	return &voteRepository{tx: tx}, nil
 }

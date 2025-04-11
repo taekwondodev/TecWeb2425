@@ -26,12 +26,10 @@ func setupAuthRoutes(authController *controller.AuthController) {
 func setupMemeRoutes(memeController *controller.MemeController) {
 	router.Handle("GET /memes", memeMiddleware(memeController.GetMemes))
 	router.Handle("GET /memes/daily", memeMiddleware(memeController.GetDailyMeme))
-
 	router.Handle("POST /memes/upload", memeMiddleware(memeController.UploadMeme))
 	// POST create comment /memes/{id}/comments
 
-	// PATCH update meme /memes/{id}
-	// PATCH downvote meme /memes/{id}
+	router.Handle("PATCH /memes/vote", memeMiddleware(memeController.VoteMeme))
 }
 
 func authMiddleware(h middleware.HandlerFunc) http.HandlerFunc {

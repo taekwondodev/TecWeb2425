@@ -3,6 +3,7 @@ package controller
 import (
 	"backend/config"
 	customerrors "backend/customErrors"
+	"backend/dto"
 	"backend/middleware"
 	"backend/service"
 	"encoding/json"
@@ -82,6 +83,25 @@ func (c *MemeController) UploadMeme(w http.ResponseWriter, r *http.Request) erro
 	}
 
 	return c.respond(w, http.StatusCreated, res)
+}
+
+func (c *MemeController) VoteMeme(w http.ResponseWriter, r *http.Request) error {
+	claims, err := middleware.GetClaimsFromContext(r.Context())
+	if err != nil {
+		return customerrors.ErrInvalidCredentials
+	}
+
+	var req dto.VoteRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return customerrors.ErrBadRequest
+	}
+
+	res, err := c.service.VoteMeme(r.Context(), claims.Id, req)
+	if err != nil {
+		return err
+	}
+
+	return c.respond(w, http.StatusOK, res)
 }
 
 func (c *MemeController) respond(w http.ResponseWriter, status int, data any) error {

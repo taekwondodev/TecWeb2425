@@ -168,12 +168,13 @@ func TestAuthServiceLoginCorrect(t *testing.T) {
 	}
 
 	mockUser := &models.User{
+		ID:       1,
 		Username: "testuser",
 		Email:    emailString,
 	}
 
 	mockRepo.On("GetUserByCredentials", req.Username, req.Password).Return(mockUser, nil)
-	mockToken.On("GenerateJWT", mockUser.Username, mockUser.Email).Return("mockAccessToken", "mockRefreshToken", nil)
+	mockToken.On("GenerateJWT", mockUser.Username, mockUser.Email, mockUser.ID).Return("mockAccessToken", "mockRefreshToken", nil)
 
 	res, err := authService.Login(req)
 
@@ -232,12 +233,13 @@ func TestAuthServiceLoginJWTError(t *testing.T) {
 	}
 
 	mockUser := &models.User{
+		ID:       1,
 		Username: "fail",
 		Email:    emailString,
 	}
 
 	mockRepo.On("GetUserByCredentials", req.Username, req.Password).Return(mockUser, nil)
-	mockToken.On("GenerateJWT", mockUser.Username, mockUser.Email).Return("", "", assert.AnError)
+	mockToken.On("GenerateJWT", mockUser.Username, mockUser.Email, mockUser.ID).Return("", "", assert.AnError)
 
 	res, err := authService.Login(req)
 
@@ -259,8 +261,8 @@ func TestAuthServiceRefreshCorrect(t *testing.T) {
 		RefreshToken: "valid-refresh-token",
 	}
 
-	mockToken.On("ValidateJWT", req.RefreshToken).Return(&config.Claims{Username: "testuser", Email: emailString}, nil)
-	mockToken.On("GenerateJWT", "testuser", emailString).Return("mockAccessToken", "", nil)
+	mockToken.On("ValidateJWT", req.RefreshToken).Return(&config.Claims{Username: "testuser", Email: emailString, Id: 1}, nil)
+	mockToken.On("GenerateJWT", "testuser", emailString, 1).Return("mockAccessToken", "", nil)
 
 	res, err := authService.Refresh(req)
 
@@ -313,8 +315,8 @@ func TestAuthServiceRefreshErrorGenerate(t *testing.T) {
 		RefreshToken: "invalid-refresh-token",
 	}
 
-	mockToken.On("ValidateJWT", req.RefreshToken).Return(&config.Claims{Username: "testuser", Email: emailString}, nil)
-	mockToken.On("GenerateJWT", "testuser", emailString).Return("", "", assert.AnError)
+	mockToken.On("ValidateJWT", req.RefreshToken).Return(&config.Claims{Username: "testuser", Email: emailString, Id: 1}, nil)
+	mockToken.On("GenerateJWT", "testuser", emailString, 1).Return("", "", assert.AnError)
 
 	res, err := authService.Refresh(req)
 

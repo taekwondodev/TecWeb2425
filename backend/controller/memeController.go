@@ -77,7 +77,7 @@ func (c *MemeController) UploadMeme(w http.ResponseWriter, r *http.Request) erro
 	}
 	defer file.Close()
 
-	res, err := c.service.UploadMeme(file, header, tag, claims.Id)
+	res, err := c.service.UploadMeme(file, header, tag, claims.Username)
 	if err != nil {
 		return err
 	}

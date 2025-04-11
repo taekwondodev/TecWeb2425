@@ -23,7 +23,7 @@ import (
 type MemeService interface {
 	GetMemes(ctx context.Context, page int, pageSize int, sortBy string) (*dto.GetMemeResponse, error)
 	GetDailyMeme() (*models.Meme, error)
-	UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, id int) (*dto.MemeUploadResponse, error)
+	UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, username string) (*dto.MemeUploadResponse, error)
 	VoteMeme(ctx context.Context, id int, req dto.VoteRequest) (*dto.MemeUploadResponse, error)
 }
 
@@ -101,7 +101,7 @@ func (s *MemeServiceImpl) GetDailyMeme() (*models.Meme, error) {
 	return meme, nil
 }
 
-func (s *MemeServiceImpl) UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, id int) (*dto.MemeUploadResponse, error) {
+func (s *MemeServiceImpl) UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, username string) (*dto.MemeUploadResponse, error) {
 	if err := s.validateFileType(file); err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func (s *MemeServiceImpl) UploadMeme(file multipart.File, header *multipart.File
 		return nil, err
 	}
 
-	if err := s.repo.SaveMeme(filePath, tag, id); err != nil {
+	if err := s.repo.SaveMeme(filePath, tag, username); err != nil {
 		os.Remove(filePath)
 		return nil, customerrors.ErrInternalServer
 	}

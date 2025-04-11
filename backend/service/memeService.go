@@ -25,6 +25,7 @@ type MemeService interface {
 	GetDailyMeme() (*models.Meme, error)
 	UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, username string) (*dto.MemeUploadResponse, error)
 	VoteMeme(ctx context.Context, id int, req dto.VoteRequest) (*dto.MemeUploadResponse, error)
+	CreateComment(ctx context.Context, req dto.CreateCommentRequest, username string) (*dto.MemeUploadResponse, error)
 }
 
 type MemeServiceImpl struct {
@@ -163,6 +164,20 @@ func (s *MemeServiceImpl) VoteMeme(ctx context.Context, id int, req dto.VoteRequ
 	return &dto.MemeUploadResponse{
 		Message: "Vote recorded successfully!",
 	}, tx.Commit()
+}
+
+func (s *MemeServiceImpl) CreateComment(ctx context.Context, req dto.CreateCommentRequest, username string) (*dto.MemeUploadResponse, error) {
+	if err := req.Validate(); err != nil {
+		return nil, customerrors.ErrBadRequest
+	}
+
+	if err := s.repo.SaveComment(ctx, req.MemeID, req.Content, username); err != nil {
+		return nil, err
+	}
+
+	return &dto.MemeUploadResponse{
+		Message: "Comment created successfully!",
+	}, nil
 }
 
 func (s *MemeServiceImpl) validateFileType(file multipart.File) error {

@@ -104,6 +104,25 @@ func (c *MemeController) VoteMeme(w http.ResponseWriter, r *http.Request) error 
 	return c.respond(w, http.StatusOK, res)
 }
 
+func (c *MemeController) CreateComment(w http.ResponseWriter, r *http.Request) error {
+	claims, err := middleware.GetClaimsFromContext(r.Context())
+	if err != nil {
+		return customerrors.ErrInvalidCredentials
+	}
+
+	var req dto.CreateCommentRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return customerrors.ErrBadRequest
+	}
+
+	res, err := c.service.CreateComment(r.Context(), req, claims.Username)
+	if err != nil {
+		return err
+	}
+
+	return c.respond(w, http.StatusCreated, res)
+}
+
 func (c *MemeController) respond(w http.ResponseWriter, status int, data any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

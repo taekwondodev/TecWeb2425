@@ -27,11 +27,7 @@ func (s *AuthServiceImpl) Register(req dto.AuthRequest) (*dto.AuthResponse, erro
 		return nil, customerrors.ErrBadRequest
 	}
 
-	if err := s.repo.CheckEmailExist(req.Email); err != nil {
-		return nil, err
-	}
-
-	if err := s.repo.CheckUsernameExist(req.Username); err != nil {
+	if err := s.repo.CheckUserExists(req.Username, req.Email); err != nil {
 		return nil, err
 	}
 

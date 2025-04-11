@@ -16,84 +16,80 @@ const selectUserQuery = "SELECT id, username, email, password_hash, created_at, 
 const emailString = "example@domain.com"
 const date = "2023-01-01"
 
-func TestCheckUsernameExistCorrect(t *testing.T) {
+func TestCheckUserExistsUsernameExists(t *testing.T) {
 	db, mock, _ := sqlmock.New()
 	defer db.Close()
 
 	repo := repository.NewUserRepository(db)
 
-	username := "testuser"
-	rows := sqlmock.NewRows([]string{"exists"}).AddRow(true)
-	mock.ExpectQuery(existQuery).WithArgs(username).WillReturnRows(rows)
+	username := "existinguser"
+	email := "newemail@example.com"
+	rows := sqlmock.NewRows([]string{"username_exists", "email_exists"}).AddRow(true, false)
+	mock.ExpectQuery(existQuery).WithArgs(username, email).WillReturnRows(rows)
 
-	err := repo.CheckUsernameExist(username)
+	err := repo.CheckUserExists(username, email)
 	assert.Error(t, err)
-	assert.Equal(t, customerrors.ErrUserAlreadyExists, err)
+	assert.Equal(t, customerrors.ErrUsernameAlreadyExists, err)
 }
 
-func TestCheckUsernameExistNotFound(t *testing.T) {
+func TestCheckUserExistsEmailExists(t *testing.T) {
 	db, mock, _ := sqlmock.New()
 	defer db.Close()
 
 	repo := repository.NewUserRepository(db)
 
-	username := "testuser"
-	mock.ExpectQuery(existQuery).WithArgs(username).WillReturnError(sql.ErrNoRows)
+	username := "newuser"
+	email := "existingemail@example.com"
+	rows := sqlmock.NewRows([]string{"username_exists", "email_exists"}).AddRow(false, true)
+	mock.ExpectQuery(existQuery).WithArgs(username, email).WillReturnRows(rows)
 
-	err := repo.CheckUsernameExist(username)
-	assert.Error(t, err)
-}
-
-func TestCheckUsernameExistDbError(t *testing.T) {
-	db, mock, _ := sqlmock.New()
-	defer db.Close()
-
-	repo := repository.NewUserRepository(db)
-
-	username := "testuser"
-	mock.ExpectQuery(existQuery).WithArgs(username).WillReturnError(sql.ErrConnDone)
-
-	err := repo.CheckUsernameExist(username)
-	assert.Error(t, err)
-}
-
-/****************************************************************/
-
-func TestCheckEmailExistCorrect(t *testing.T) {
-	db, mock, _ := sqlmock.New()
-	defer db.Close()
-
-	repo := repository.NewUserRepository(db)
-
-	rows := sqlmock.NewRows([]string{"exists"}).AddRow(true)
-	mock.ExpectQuery(existQuery).WithArgs(emailString).WillReturnRows(rows)
-
-	err := repo.CheckEmailExist(emailString)
+	err := repo.CheckUserExists(username, email)
 	assert.Error(t, err)
 	assert.Equal(t, customerrors.ErrEmailAlreadyExists, err)
 }
 
-func TestCheckEmailExistNotFound(t *testing.T) {
+func TestCheckUserExistsBothExist(t *testing.T) {
 	db, mock, _ := sqlmock.New()
 	defer db.Close()
 
 	repo := repository.NewUserRepository(db)
 
-	mock.ExpectQuery(existQuery).WithArgs(emailString).WillReturnError(sql.ErrNoRows)
+	username := "existinguser"
+	email := "existingemail@example.com"
+	rows := sqlmock.NewRows([]string{"username_exists", "email_exists"}).AddRow(true, true)
+	mock.ExpectQuery(existQuery).WithArgs(username, email).WillReturnRows(rows)
 
-	err := repo.CheckEmailExist(emailString)
+	err := repo.CheckUserExists(username, email)
 	assert.Error(t, err)
+	assert.Equal(t, customerrors.ErrUsernameAlreadyExists, err) // Username error takes precedence
 }
 
-func TestCheckEmailExistDbError(t *testing.T) {
+func TestCheckUserExistsNoneExist(t *testing.T) {
 	db, mock, _ := sqlmock.New()
 	defer db.Close()
 
 	repo := repository.NewUserRepository(db)
 
-	mock.ExpectQuery(existQuery).WithArgs(emailString).WillReturnError(sql.ErrConnDone)
+	username := "newuser"
+	email := "newemail@example.com"
+	rows := sqlmock.NewRows([]string{"username_exists", "email_exists"}).AddRow(false, false)
+	mock.ExpectQuery(existQuery).WithArgs(username, email).WillReturnRows(rows)
 
-	err := repo.CheckEmailExist(emailString)
+	err := repo.CheckUserExists(username, email)
+	assert.NoError(t, err)
+}
+
+func TestCheckUserExistsDbError(t *testing.T) {
+	db, mock, _ := sqlmock.New()
+	defer db.Close()
+
+	repo := repository.NewUserRepository(db)
+
+	username := "testuser"
+	email := "testemail@example.com"
+	mock.ExpectQuery(existQuery).WithArgs(username, email).WillReturnError(sql.ErrConnDone)
+
+	err := repo.CheckUserExists(username, email)
 	assert.Error(t, err)
 }
 

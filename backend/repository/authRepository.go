@@ -9,10 +9,9 @@ import (
 )
 
 type UserRepository interface {
-	CheckUsernameExist(username string) error
+	CheckUserExists(username, email string) error
 	SaveUser(username string, password string, email string) error
 	GetUserByCredentials(username string, password string) (*models.User, error)
-	CheckEmailExist(email string) error
 }
 
 type UserRepositoryImpl struct {
@@ -23,30 +22,26 @@ func NewUserRepository(db *sql.DB) UserRepository {
 	return &UserRepositoryImpl{db: db}
 }
 
-func (r *UserRepositoryImpl) CheckUsernameExist(username string) error {
-	var exists bool
-	query := "SELECT EXISTS(SELECT 1 FROM users WHERE username=$1)"
-	err := r.db.QueryRow(query, username).Scan(&exists)
+func (r *UserRepositoryImpl) CheckUserExists(username, email string) error {
+	query := `
+        SELECT 
+            EXISTS(SELECT 1 FROM users WHERE username = $1) AS username_exists,
+            EXISTS(SELECT 1 FROM users WHERE email = $2) AS email_exists
+    `
+	var usernameExists, emailExists bool
+	err := r.db.QueryRow(query, username, email).Scan(&usernameExists, &emailExists)
 	if err != nil {
 		return err
 	}
-	if exists {
-		return customerrors.ErrUserAlreadyExists
-	}
-	return nil
-}
 
-func (r *UserRepositoryImpl) CheckEmailExist(email string) error {
-	var exists bool
-	query := "SELECT EXISTS(SELECT 1 FROM users WHERE email=$1)"
-	err := r.db.QueryRow(query, email).Scan(&exists)
-	if err != nil {
-		return err
-	}
-	if exists {
+	switch {
+	case usernameExists:
+		return customerrors.ErrUsernameAlreadyExists
+	case emailExists:
 		return customerrors.ErrEmailAlreadyExists
+	default:
+		return nil
 	}
-	return nil
 }
 
 func (r *UserRepositoryImpl) SaveUser(username string, password string, email string) error {

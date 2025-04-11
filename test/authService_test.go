@@ -20,13 +20,8 @@ type MockToken struct {
 	mock.Mock
 }
 
-func (m *MockUserRepository) CheckUsernameExist(username string) error {
-	args := m.Called(username)
-	return args.Error(0)
-}
-
-func (m *MockUserRepository) CheckEmailExist(email string) error {
-	args := m.Called(email)
+func (m *MockUserRepository) CheckUserExists(username string, email string) error {
+	args := m.Called(username, email)
 	return args.Error(0)
 }
 
@@ -69,8 +64,7 @@ func TestAuthServiceRegisterCorrect(t *testing.T) {
 		Email:    emailString,
 	}
 
-	mockRepo.On("CheckEmailExist", req.Email).Return(nil)
-	mockRepo.On("CheckUsernameExist", req.Username).Return(nil)
+	mockRepo.On("CheckUserExists", req.Username, req.Email).Return(nil)
 	mockRepo.On("SaveUser", req.Username, req.Password, req.Email).Return(nil)
 
 	res, err := authService.Register(req)
@@ -108,14 +102,13 @@ func TestAuthServiceRegisterUserAlreadyExists(t *testing.T) {
 		Email:    emailString,
 	}
 
-	mockRepo.On("CheckEmailExist", req.Email).Return(nil)
-	mockRepo.On("CheckUsernameExist", req.Username).Return(customerrors.ErrUserAlreadyExists)
+	mockRepo.On("CheckUserExists", req.Username, req.Email).Return(customerrors.ErrUsernameAlreadyExists)
 
 	res, err := authService.Register(req)
 
 	assert.Nil(t, res)
 	assert.Error(t, err)
-	assert.Equal(t, customerrors.ErrUserAlreadyExists.Error(), err.Error())
+	assert.Equal(t, customerrors.ErrUsernameAlreadyExists.Error(), err.Error())
 	mockRepo.AssertExpectations(t)
 }
 
@@ -130,7 +123,7 @@ func TestAuthServiceRegisterEmailAlreadyExists(t *testing.T) {
 		Email:    emailString,
 	}
 
-	mockRepo.On("CheckEmailExist", req.Email).Return(customerrors.ErrEmailAlreadyExists)
+	mockRepo.On("CheckUserExists", req.Username, req.Email).Return(customerrors.ErrEmailAlreadyExists)
 
 	res, err := authService.Register(req)
 
@@ -151,8 +144,7 @@ func TestAuthServiceRegisterSaveUserError(t *testing.T) {
 		Email:    emailString,
 	}
 
-	mockRepo.On("CheckEmailExist", req.Email).Return(nil)
-	mockRepo.On("CheckUsernameExist", req.Username).Return(nil)
+	mockRepo.On("CheckUserExists", req.Username, req.Email).Return(nil)
 	mockRepo.On("SaveUser", req.Username, req.Password, req.Email).Return(assert.AnError)
 
 	res, err := authService.Register(req)

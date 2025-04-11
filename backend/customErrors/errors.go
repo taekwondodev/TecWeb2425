@@ -16,18 +16,18 @@ func (e *Error) Error() string {
 }
 
 var (
-	ErrUserAlreadyExists    = &Error{Code: 409, Message: "user already exists"}
-	ErrEmailAlreadyExists   = &Error{Code: 409, Message: "email already exists"}
-	ErrInvalidCredentials   = &Error{Code: 401, Message: "invalid credentials"}
-	ErrUserNotFound         = &Error{Code: 404, Message: "user not found"}
-	ErrImageNotFound        = &Error{Code: 404, Message: "image not found"}
-	ErrHttpMethodNotAllowed = &Error{Code: 405, Message: "http method not allowed"}
-	ErrMediaTypeNotAllowed  = &Error{Code: 415, Message: "media type not allowed"}
-	ErrBadRequest           = &Error{Code: 400, Message: "bad request"}
-	ErrInternalServer       = &Error{Code: 500, Message: "internal server error"}
-	ErrDbUnreacheable       = &Error{Code: 503, Message: "database unreachable"}
-	ErrDbSSLHandshakeFailed = &Error{Code: 502, Message: "database SSL handshake failed"}
-	ErrDbTimeout            = &Error{Code: 504, Message: "database timeout"}
+	ErrUsernameAlreadyExists = &Error{Code: 409, Message: "username already exists"}
+	ErrEmailAlreadyExists    = &Error{Code: 409, Message: "email already exists"}
+	ErrInvalidCredentials    = &Error{Code: 401, Message: "invalid credentials"}
+	ErrUserNotFound          = &Error{Code: 404, Message: "user not found"}
+	ErrImageNotFound         = &Error{Code: 404, Message: "image not found"}
+	ErrHttpMethodNotAllowed  = &Error{Code: 405, Message: "http method not allowed"}
+	ErrMediaTypeNotAllowed   = &Error{Code: 415, Message: "media type not allowed"}
+	ErrBadRequest            = &Error{Code: 400, Message: "bad request"}
+	ErrInternalServer        = &Error{Code: 500, Message: "internal server error"}
+	ErrDbUnreacheable        = &Error{Code: 503, Message: "database unreachable"}
+	ErrDbSSLHandshakeFailed  = &Error{Code: 502, Message: "database SSL handshake failed"}
+	ErrDbTimeout             = &Error{Code: 504, Message: "database timeout"}
 )
 
 func GetStatus(err error) int {

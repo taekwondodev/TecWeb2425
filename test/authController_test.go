@@ -74,7 +74,7 @@ func TestAuthControllerRegisterUserAlreadyExist(t *testing.T) {
 		Email:    emailString,
 	}
 
-	mockService.On("Register", req).Return((*dto.AuthResponse)(nil), customerrors.ErrUserAlreadyExists)
+	mockService.On("Register", req).Return((*dto.AuthResponse)(nil), customerrors.ErrUsernameAlreadyExists)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, endpointRegisterString, bytes.NewBufferString(`{"username":"testuser","password":"testpassword",  "email":"example@domain.com"}`))
@@ -85,7 +85,7 @@ func TestAuthControllerRegisterUserAlreadyExist(t *testing.T) {
 	assert.Equal(t, http.StatusConflict, w.Code)
 	expected := `{
         "code": 409,
-        "message": "user already exists"
+        "message": "username already exists"
     }`
 	assert.JSONEq(t, expected, w.Body.String())
 	mockService.AssertExpectations(t)

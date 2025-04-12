@@ -145,7 +145,9 @@ func (s *MemeServiceImpl) VoteMeme(ctx context.Context, id int, req dto.VoteRequ
 
 	switch {
 	case actualVote == req.Vote:
-		return nil, nil // No change
+		return &dto.MemeUploadResponse{
+			Message: "Vote already recorded!",
+		}, nil // No change
 	case actualVote == -req.Vote:
 		err = tx.UpdateVote(ctx, id, req.MemeID, req.Vote) // Switch from upvote to downvote or vice versa
 	default:

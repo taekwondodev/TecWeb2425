@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"sync"
 	"time"
@@ -143,28 +144,24 @@ func (s *MemeServiceImpl) VoteMeme(ctx context.Context, id int, req dto.VoteRequ
 		return nil, err
 	}
 
+	var removed bool
 	switch {
 	case actualVote == req.Vote:
-		return &dto.MemeUploadResponse{
-			Message: "Vote already recorded!",
-		}, nil // No change
+		err = removeVote(ctx, tx, id, req)
+		removed = true
 	case actualVote == -req.Vote:
-		err = tx.UpdateVote(ctx, id, req.MemeID, req.Vote) // Switch from upvote to downvote or vice versa
+		err = switchVoteUpdate(ctx, tx, id, req, actualVote)
 	default:
-		err = tx.CreateVote(ctx, id, req.MemeID, req.Vote) // New vote
+		err = newVote(ctx, tx, id, req)
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
-	err = tx.UpdateMemeVoteCount(ctx, req.MemeID, req.Vote, actualVote)
 	if err != nil {
 		return nil, err
 	}
 
 	return &dto.MemeUploadResponse{
-		Message: "Vote recorded successfully!",
+		Message: "Vote operation completed successfully!",
+		Removed: removed,
 	}, tx.Commit()
 }
 
@@ -187,24 +184,11 @@ func (s *MemeServiceImpl) validateFileType(file multipart.File) error {
 	if _, err := file.Read(buff); err != nil {
 		return customerrors.ErrInternalServer
 	}
+	defer file.Seek(0, io.SeekStart)
 
-	filetype := http.DetectContentType(buff)
-	valid := false
-	for _, t := range config.AllowedTypes {
-		if filetype == t {
-			valid = true
-			break
-		}
-	}
-
-	if !valid {
+	if !slices.Contains(config.AllowedTypes, http.DetectContentType(buff)) {
 		return customerrors.ErrMediaTypeNotAllowed
 	}
-
-	if _, err := file.Seek(0, io.SeekStart); err != nil {
-		return customerrors.ErrInternalServer
-	}
-
 	return nil
 }
 
@@ -225,4 +209,28 @@ func (s *MemeServiceImpl) saveFile(src multipart.File, dstPath string) error {
 
 func isCacheValid(cache *models.Meme, lastUpdate time.Time) bool {
 	return cache != nil && time.Since(lastUpdate) < 24*time.Hour
+}
+
+func removeVote(ctx context.Context, tx repository.VoteRepository, id int, req dto.VoteRequest) error {
+	err := tx.DeleteVote(ctx, id, req.MemeID)
+	if err != nil {
+		return err
+	}
+	return tx.UpdateMemeVoteCountOnRemove(ctx, req.MemeID, req.Vote)
+}
+
+func switchVoteUpdate(ctx context.Context, tx repository.VoteRepository, id int, req dto.VoteRequest, actualVote int) error {
+	err := tx.UpdateVote(ctx, id, req.MemeID, req.Vote)
+	if err != nil {
+		return err
+	}
+	return tx.UpdateMemeVoteCount(ctx, req.MemeID, req.Vote, actualVote)
+}
+
+func newVote(ctx context.Context, tx repository.VoteRepository, id int, req dto.VoteRequest) error {
+	err := tx.CreateVote(ctx, id, req.MemeID, req.Vote)
+	if err != nil {
+		return err
+	}
+	return tx.UpdateMemeVoteCount(ctx, req.MemeID, req.Vote, 0)
 }

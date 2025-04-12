@@ -6,6 +6,7 @@ import (
 
 type MemeUploadResponse struct {
 	Message string `json:"message"`
+	Removed bool   `json:"removed,omitzero"`
 }
 
 type GetMemeResponse struct {

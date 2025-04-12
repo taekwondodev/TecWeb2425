@@ -10,7 +10,9 @@ type VoteRepository interface {
 	GetVote(ctx context.Context, userID, memeID int) (int, error)
 	CreateVote(ctx context.Context, userID, memeID, vote int) error
 	UpdateVote(ctx context.Context, userID, memeID, vote int) error
+	DeleteVote(ctx context.Context, userID int, memeID int) error
 	UpdateMemeVoteCount(ctx context.Context, memeID, newVote, oldVote int) error
+	UpdateMemeVoteCountOnRemove(ctx context.Context, memeID int, vote int) error
 	Commit() error
 	Rollback() error
 }
@@ -47,6 +49,14 @@ func (v *voteRepository) UpdateVote(ctx context.Context, userID int, memeID int,
 	return err
 }
 
+func (v *voteRepository) DeleteVote(ctx context.Context, userID int, memeID int) error {
+	_, err := v.tx.ExecContext(ctx,
+		"DELETE FROM meme_votes WHERE user_id = $1 AND meme_id = $2",
+		userID, memeID,
+	)
+	return err
+}
+
 func (v *voteRepository) UpdateMemeVoteCount(ctx context.Context, memeID int, newVote int, oldVote int) error {
 	var column string
 	if newVote == 1 {
@@ -59,6 +69,21 @@ func (v *voteRepository) UpdateMemeVoteCount(ctx context.Context, memeID int, ne
 		if oldVote == 1 {
 			column = "downvotes = downvotes + 1, upvotes = upvotes - 1"
 		}
+	}
+
+	_, err := v.tx.ExecContext(ctx,
+		fmt.Sprintf("UPDATE memes SET %s WHERE id = $1", column),
+		memeID,
+	)
+	return err
+}
+
+func (v *voteRepository) UpdateMemeVoteCountOnRemove(ctx context.Context, memeID int, vote int) error {
+	var column string
+	if vote == 1 {
+		column = "upvotes = upvotes - 1"
+	} else {
+		column = "downvotes = downvotes - 1"
 	}
 
 	_, err := v.tx.ExecContext(ctx,

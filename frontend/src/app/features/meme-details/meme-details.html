@@ -1,0 +1,42 @@
+<div class="meme-details-container">
+    <div *ngIf="isLoading" class="loading-indicator">
+      <p>Caricamento del meme in corso...</p>
+    </div>
+    
+    <div *ngIf="!isLoading && error" class="error-message">
+      <h2>Errore</h2>
+      <p>Impossibile caricare il meme richiesto. Verifica che l'ID sia corretto o riprova più tardi.</p>
+      <a routerLink="/" class="back-link">Torna alla home</a>
+    </div>
+    
+    <div *ngIf="!isLoading && meme" class="meme-content">
+      <div class="meme-header">
+        <h1 class="meme-title">{{ meme.title }}</h1>
+        <div class="meme-tags">
+          <span *ngFor="let tag of meme.tags" class="tag">{{ tag }}</span>
+        </div>
+      </div>
+      
+      <div class="meme-media">
+        <img [src]="meme.imageUrl" [alt]="meme.title" class="meme-image">
+      </div>
+      
+      <div class="meme-meta">
+        <div class="meta-info">
+          <p class="upload-date">Caricato il {{ meme.uploadDate | date:'dd/MM/yyyy' }}</p>
+        </div>
+        
+        <div class="vote-actions">
+          <app-upvote-downvote
+            [upvotes]="meme.upvotes"
+            [downvotes]="meme.downvotes"
+            (onUpvote)="upvoteMeme()"
+            (onDownvote)="downvoteMeme()"
+          ></app-upvote-downvote>
+        </div>
+      </div>
+      
+      <app-comment-section [memeId]="meme.id"></app-comment-section>
+    </div>
+  </div>
+  

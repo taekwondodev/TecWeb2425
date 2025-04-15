@@ -1,0 +1,39 @@
+<div class="search-results-container">
+    <h1 class="page-title">Risultati per: "{{ searchQuery }}"</h1>
+    
+    <div class="content-layout">
+      <aside class="filters-sidebar">
+        <app-search-filter 
+          (filterChange)="handleFilterChange($event)"
+        ></app-search-filter>
+      </aside>
+      
+      <main class="results-area">
+        <div *ngIf="isLoading" class="loading-indicator">
+          <p>Ricerca in corso...</p>
+        </div>
+        
+        <div *ngIf="!isLoading && noResults" class="no-results">
+          <h3>Nessun risultato trovato</h3>
+          <p>Non abbiamo trovato meme corrispondenti alla tua ricerca "{{ searchQuery }}".</p>
+          <p>Suggerimenti:</p>
+          <ul>
+            <li>Verifica che tutte le parole siano scritte correttamente</li>
+            <li>Prova con parole chiave diverse</li>
+            <li>Prova con termini più generici</li>
+          </ul>
+        </div>
+        
+        <div *ngIf="!isLoading && searchResults.length > 0" class="results-grid">
+          <div *ngFor="let meme of searchResults" class="result-item">
+            <app-meme-card 
+              [meme]="meme" 
+              (upvote)="upvoteMeme($event)" 
+              (downvote)="downvoteMeme($event)"
+            ></app-meme-card>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  

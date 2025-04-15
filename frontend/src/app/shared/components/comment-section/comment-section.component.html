@@ -1,0 +1,49 @@
+<div class="comment-section">
+    <h3 class="section-title">Commenti</h3>
+    
+    <div *ngIf="isLoggedIn" class="comment-form">
+      <form [formGroup]="commentForm" (ngSubmit)="submitComment()">
+        <div class="form-group">
+          <textarea 
+            formControlName="content" 
+            placeholder="Scrivi un commento..." 
+            rows="3"
+            [class.is-invalid]="commentForm.get('content')?.invalid && commentForm.get('content')?.touched"
+          ></textarea>
+          <div *ngIf="commentForm.get('content')?.hasError('required') && commentForm.get('content')?.touched" class="error-message">
+            Il commento non può essere vuoto.
+          </div>
+          <div *ngIf="commentForm.get('content')?.hasError('maxlength')" class="error-message">
+            Il commento non può superare i 500 caratteri.
+          </div>
+        </div>
+        <button 
+          type="submit" 
+          [disabled]="commentForm.invalid || isSubmitting"
+          class="submit-btn"
+        >
+          {{ isSubmitting ? 'Invio in corso...' : 'Pubblica' }}
+        </button>
+      </form>
+    </div>
+    
+    <div *ngIf="!isLoggedIn" class="login-prompt">
+      <p>Per lasciare un commento, <a routerLink="/login">accedi</a> o <a routerLink="/register">registrati</a>.</p>
+    </div>
+    
+    <div class="comments-list">
+      <div *ngIf="comments.length === 0" class="no-comments">
+        <p>Non ci sono ancora commenti. Sii il primo a commentare!</p>
+      </div>
+      
+      <div *ngFor="let comment of comments" class="comment-item">
+        <div class="comment-header">
+          <span class="username">{{ comment.username }}</span>
+          <span class="timestamp">{{ formatDate(comment.timestamp) }}</span>
+        </div>
+        <div class="comment-content">
+          {{ comment.content }}
+        </div>
+      </div>
+    </div>
+  </div>

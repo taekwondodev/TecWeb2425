@@ -1,0 +1,144 @@
+.meme-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+  }
+  
+  .meme-image {
+    height: 200px;
+    overflow: hidden;
+    cursor: pointer;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+      
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+  }
+  
+  .meme-info {
+    padding: 15px;
+  }
+  
+  .meme-title {
+    margin: 0 0 10px;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+  
+  .meme-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+    
+    .upload-date {
+      color: #777;
+    }
+  }
+  
+  .meme-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    
+    .tag {
+      background: #f1f1f1;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      color: #444;
+    }
+  }
+  
+  .meme-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    
+    button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px 10px;
+      font-size: 0.9rem;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+      
+      &:hover {
+        background-color: #f1f1f1;
+      }
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      i {
+        margin-right: 5px;
+      }
+    }
+  }
+  
+  .vote-actions {
+    display: flex;
+    gap: 10px;
+    
+    .upvote-btn {
+      color: #2ecc71;
+      
+      &:hover {
+        background-color: rgba(46, 204, 113, 0.1);
+      }
+    }
+    
+    .downvote-btn {
+      color: #e74c3c;
+      
+      &:hover {
+        background-color: rgba(231, 76, 60, 0.1);
+      }
+    }
+  }
+  
+  .comment-btn {
+    color: #3498db;
+    
+    &:hover {
+      background-color: rgba(52, 152, 219, 0.1);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .meme-image {
+      height: 150px;
+    }
+    
+    .meme-info {
+      padding: 10px;
+    }
+    
+    .meme-title {
+      font-size: 1rem;
+    }
+    
+    .meme-actions {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+}

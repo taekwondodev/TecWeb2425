@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Meme } from '../../shared/models/meme.models';
-import { Comment } from '../../shared/models/comment.models';
+import { Meme } from '../../shared/models/meme.model';
+import { Comment } from '../../shared/models/comment.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({

@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
-import { Meme } from '../../models/meme.models';
-import { AuthService } from '../../../core/services/auth.services';
+import { Meme } from '../../models/meme.model';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-meme-card',

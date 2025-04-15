@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Comment } from '../../models/comment.models';
-import { MemeService } from '../../../core/services/meme.services';
-import { AuthService } from '../../../core/services/auth.services';
+import { Comment } from '../../models/comment.model';
+import { MemeService } from '../../../core/services/meme.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-comment-section',

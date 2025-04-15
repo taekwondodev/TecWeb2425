@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
-import { AppRoutingModule } from './app-routing.modules';
+import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 // Core
@@ -25,7 +25,6 @@ import { MemeUploadComponent } from './features/meme-upload/meme-upload.componen
 import { SearchResultsComponent } from './features/search-results/search-results.component';
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
-import { UserProfileComponent } from './features/user-profile/user-profile.component';
 
 @NgModule({
   declarations: [
@@ -43,7 +42,6 @@ import { UserProfileComponent } from './features/user-profile/user-profile.compo
     SearchResultsComponent,
     LoginComponent,
     RegisterComponent,
-    UserProfileComponent
   ],
   imports: [
     BrowserModule,

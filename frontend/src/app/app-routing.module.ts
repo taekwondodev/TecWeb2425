@@ -7,7 +7,7 @@ import { MemeUploadComponent } from './features/meme-upload/meme-upload.componen
 import { SearchResultsComponent } from './features/search-results/search-results.component';
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
-import { AuthGuard } from './core/guards/auth.guards';
+import { AuthGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },

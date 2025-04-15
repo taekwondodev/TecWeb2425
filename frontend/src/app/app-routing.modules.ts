@@ -7,7 +7,6 @@ import { MemeUploadComponent } from './features/meme-upload/meme-upload.componen
 import { SearchResultsComponent } from './features/search-results/search-results.component';
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
-import { UserProfileComponent } from './features/user-profile/user-profile.component';
 import { AuthGuard } from './core/guards/auth.guards';
 
 const routes: Routes = [
@@ -18,7 +17,6 @@ const routes: Routes = [
   { path: 'search', component: SearchResultsComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'profile', component: UserProfileComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 

@@ -4,13 +4,15 @@ import (
 	"backend/models"
 	"context"
 	"database/sql"
+	"fmt"
+	"strings"
 	"time"
 )
 
 type MemeRepository interface {
 	SaveMeme(filePath string, tag string, username string) error
-	CountsMeme(ctx context.Context) (int, error)
-	GetMemes(ctx context.Context, page int, pageSize int, sortBy string) ([]models.Meme, error)
+	CountsMeme(ctx context.Context, filterDateFrom, filterDateTo string, filterTags []string) (int, error)
+	GetMemes(ctx context.Context, page int, pageSize int, sortBy string, filterDateFrom, filterDateTo string, filterTags []string) ([]models.Meme, error)
 	GetRandomMeme() (*models.Meme, error)
 	SaveComment(ctx context.Context, memeID int, content string, username string) error
 	BeginTransaction(ctx context.Context) (VoteRepository, error)
@@ -37,25 +39,29 @@ func (m *MemeRepositoryImpl) SaveMeme(filePath string, tag string, username stri
 	return err
 }
 
-func (m *MemeRepositoryImpl) CountsMeme(ctx context.Context) (int, error) {
-	query := "SELECT COUNT(*) FROM memes"
+func (m *MemeRepositoryImpl) CountsMeme(ctx context.Context, filterDateFrom, filterDateTo string, filterTags []string) (int, error) {
+	baseQuery := "SELECT COUNT(*) FROM memes WHERE 1=1"
+	query, args, _ := m.buildFilterQuery(baseQuery, filterDateFrom, filterDateTo, filterTags)
 
 	var count int
-	err := m.db.QueryRowContext(ctx, query).Scan(&count)
+	err := m.db.QueryRowContext(ctx, query, args...).Scan(&count)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return count, nil
 }
 
-func (m *MemeRepositoryImpl) GetMemes(ctx context.Context, page int, pageSize int, sortBy string) ([]models.Meme, error) {
+func (m *MemeRepositoryImpl) GetMemes(ctx context.Context, page int, pageSize int, sortBy string, filterDateFrom, filterDateTo string, filterTags []string) ([]models.Meme, error) {
 	offset := (page - 1) * pageSize
 
-	query := `
+	baseQuery := `
         SELECT id, tag, image_path, upvotes, downvotes, created_by, created_at
         FROM memes
+		WHERE 1=1
     `
+
+	query, args, argPosition := m.buildFilterQuery(baseQuery, filterDateFrom, filterDateTo, filterTags)
 
 	// ORDER BY in base al parametro
 	switch sortBy {
@@ -67,10 +73,11 @@ func (m *MemeRepositoryImpl) GetMemes(ctx context.Context, page int, pageSize in
 		query += " ORDER BY created_at DESC"
 	}
 
-	// Aggiungi paginazione
-	query += " LIMIT $1 OFFSET $2"
+	// Add pagination
+	query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", argPosition, argPosition+1)
+	args = append(args, pageSize, offset)
 
-	rows, err := m.db.QueryContext(ctx, query, pageSize, offset)
+	rows, err := m.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -132,4 +139,36 @@ func (m *MemeRepositoryImpl) BeginTransaction(ctx context.Context) (VoteReposito
 		return nil, err
 	}
 	return &voteRepository{tx: tx}, nil
+}
+
+func (m *MemeRepositoryImpl) buildFilterQuery(baseQuery string, filterDateFrom, filterDateTo string, filterTags []string) (string, []any, int) {
+	query := baseQuery
+	args := []any{}
+	argPosition := 1
+
+	// Add date filters if provided
+	if filterDateFrom != "" {
+		query += fmt.Sprintf(" AND created_at >= $%d", argPosition)
+		args = append(args, filterDateFrom)
+		argPosition++
+	}
+
+	if filterDateTo != "" {
+		query += fmt.Sprintf(" AND created_at <= $%d", argPosition)
+		args = append(args, filterDateTo)
+		argPosition++
+	}
+
+	// Add tag filter if provided
+	if len(filterTags) > 0 {
+		placeholders := make([]string, len(filterTags))
+		for i, tag := range filterTags {
+			placeholders[i] = fmt.Sprintf("tag LIKE $%d", argPosition)
+			args = append(args, "%"+tag+"%") // Using LIKE with wildcard for tag matching
+			argPosition++
+		}
+		query += " AND (" + strings.Join(placeholders, " OR ") + ")"
+	}
+
+	return query, args, argPosition
 }

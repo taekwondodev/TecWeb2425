@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type MemeController struct {
@@ -36,7 +37,22 @@ func (c *MemeController) GetMemes(w http.ResponseWriter, r *http.Request) error 
 		sortBy = "newest" // Default
 	}
 
-	res, err := c.service.GetMemes(r.Context(), page, pageSize, sortBy)
+	dateFrom := r.URL.Query().Get("dateFrom")
+	dateTo := r.URL.Query().Get("dateTo")
+	tagFilter := r.URL.Query().Get("filterBy")
+
+	filterOptions := dto.MemeFilterOptions{
+		DateFrom: dateFrom,
+		DateTo:   dateTo,
+		Tags:     []string{},
+	}
+
+	// Process tags if any
+	if tagFilter != "" {
+		filterOptions.Tags = strings.Split(tagFilter, ",")
+	}
+
+	res, err := c.service.GetMemes(r.Context(), page, pageSize, sortBy, filterOptions)
 	if err != nil {
 		return err
 	}

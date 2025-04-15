@@ -4,6 +4,12 @@ import (
 	"backend/models"
 )
 
+type MemeFilterOptions struct {
+	DateFrom string   `json:"dateFrom,omitzero"`
+	DateTo   string   `json:"dateTo,omitzero"`
+	Tags     []string `json:"tags,omitzero"`
+}
+
 type MemeUploadResponse struct {
 	Message string `json:"message"`
 	Removed bool   `json:"removed,omitzero"`

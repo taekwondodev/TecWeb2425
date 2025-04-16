@@ -19,25 +19,25 @@ export class SearchResultsComponent implements OnInit {
     dateFrom: '',
     dateTo: ''
   };
-  
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private memeService: MemeService
-  ) {}
-  
+  ) { }
+
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.searchQuery = params['query'] || '';
-      
+
       if (params['sortBy']) {
         this.currentFilters.sortBy = params['sortBy'];
       }
-      
+
       if (params['tags']) {
         this.currentFilters.tags = params['tags'];
       }
-      
+
       if (this.searchQuery) {
         this.performSearch();
       } else {
@@ -45,17 +45,17 @@ export class SearchResultsComponent implements OnInit {
       }
     });
   }
-  
+
   performSearch(): void {
     this.isLoading = true;
     this.noResults = false;
-    
+
     // Parse tags if any
     let tags: string[] = [];
     if (this.currentFilters.tags) {
       tags = this.currentFilters.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag);
     }
-    
+
     this.memeService.searchMemes(this.searchQuery, tags).subscribe({
       next: (results) => {
         this.searchResults = results;
@@ -69,24 +69,24 @@ export class SearchResultsComponent implements OnInit {
       }
     });
   }
-  
+
   handleFilterChange(filters: any): void {
     this.currentFilters = { ...filters };
-    
+
     // Update URL with new filters
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { 
+      queryParams: {
         query: this.searchQuery,
         sortBy: filters.sortBy,
         tags: filters.tags
       },
       queryParamsHandling: 'merge'
     });
-    
+
     this.performSearch();
   }
-  
+
   upvoteMeme(memeId: string): void {
     this.memeService.upvoteMeme(memeId).subscribe({
       next: (updatedMeme) => {
@@ -98,7 +98,7 @@ export class SearchResultsComponent implements OnInit {
       error: (error) => console.error('Error upvoting meme:', error)
     });
   }
-  
+
   downvoteMeme(memeId: string): void {
     this.memeService.downvoteMeme(memeId).subscribe({
       next: (updatedMeme) => {

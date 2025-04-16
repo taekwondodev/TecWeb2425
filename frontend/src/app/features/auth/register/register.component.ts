@@ -73,15 +73,15 @@ export class RegisterComponent implements OnInit {
       this.f['email'].value,
       this.f['password'].value
     )
-    .pipe(first())
-    .subscribe({
-      next: () => {
-        this.router.navigate(['/']);
-      },
-      error: error => {
-        this.error = error.error?.message || 'Registrazione fallita';
-        this.loading = false;
-      }
-    });
+      .pipe(first())
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/']);
+        },
+        error: error => {
+          this.error = error.error?.message || 'Registrazione fallita';
+          this.loading = false;
+        }
+      });
   }
 }

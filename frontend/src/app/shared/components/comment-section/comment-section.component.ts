@@ -14,7 +14,7 @@ export class CommentSectionComponent implements OnInit {
   comments: Comment[] = [];
   commentForm: FormGroup;
   isSubmitting = false;
-  
+
   constructor(
     private memeService: MemeService,
     private authService: AuthService,
@@ -24,29 +24,29 @@ export class CommentSectionComponent implements OnInit {
       content: ['', [Validators.required, Validators.maxLength(500)]]
     });
   }
-  
+
   ngOnInit(): void {
     this.loadComments();
   }
-  
+
   get isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
   }
-  
+
   loadComments(): void {
     this.memeService.getComments(this.memeId).subscribe(comments => {
       this.comments = comments;
     });
   }
-  
+
   submitComment(): void {
     if (this.commentForm.invalid || this.isSubmitting) {
       return;
     }
-    
+
     this.isSubmitting = true;
     const content = this.commentForm.get('content')?.value;
-    
+
     this.memeService.addComment(this.memeId, content).subscribe({
       next: (newComment) => {
         this.comments.unshift(newComment);
@@ -59,7 +59,7 @@ export class CommentSectionComponent implements OnInit {
       }
     });
   }
-  
+
   formatDate(date: Date): string {
     return new Date(date).toLocaleString();
   }

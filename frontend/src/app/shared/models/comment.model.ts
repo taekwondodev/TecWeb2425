@@ -1,8 +1,4 @@
-export interface Comment {
-    id: string;
-    memeId: string;
-    userId: string;
-    username: string;
-    content: string;
-    timestamp: Date;
-  }
+export interface CreateCommentRequest {
+  memeID: number;
+  content: string;
+}

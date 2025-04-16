@@ -13,16 +13,16 @@ export class UpvoteDownvoteComponent {
   @Input() userVote: 'up' | 'down' | null = null;
   @Output() onUpvote = new EventEmitter<void>();
   @Output() onDownvote = new EventEmitter<void>();
-  
+
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
-  
+  ) { }
+
   get isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
   }
-  
+
   upvote(): void {
     if (this.isLoggedIn) {
       this.onUpvote.emit();
@@ -30,7 +30,7 @@ export class UpvoteDownvoteComponent {
       this.router.navigate(['/login']);
     }
   }
-  
+
   downvote(): void {
     if (this.isLoggedIn) {
       this.onDownvote.emit();

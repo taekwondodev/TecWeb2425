@@ -1,36 +1,32 @@
 <div class="home-container">
-    <section class="hero-section">
-      <div class="hero-content">
-        <h1>Benvenuto al Meme Museum</h1>
-        <p>Esplora, condividi e vota i migliori meme della rete</p>
-      </div>
-    </section>
-    
-    <div class="content-layout">
-      <aside class="filters-sidebar">
-        <app-search-filter (filterChange)="handleFilterChange($event)"></app-search-filter>
-      </aside>
-      
-      <main class="memes-grid">
-        <h2 class="section-title">Scopri i Meme</h2>
-        
-        <div *ngIf="isLoading" class="loading-indicator">
-          <p>Caricamento meme in corso...</p>
-        </div>
-        
-        <div *ngIf="!isLoading && memes.length === 0" class="no-memes-message">
-          <p>Nessun meme trovato con i filtri selezionati.</p>
-        </div>
-        
-        <div class="memes-grid-container">
-          <div *ngFor="let meme of memes" class="meme-grid-item">
-            <app-meme-card 
-              [meme]="meme" 
-              (upvote)="upvoteMeme($event)" 
-              (downvote)="downvoteMeme($event)"
-            ></app-meme-card>
-          </div>
-        </div>
-      </main>
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1>Benvenuto al Meme Museum</h1>
+      <p>Esplora, condividi e vota i migliori meme della rete</p>
     </div>
+  </section>
+
+  <div class="content-layout">
+    <aside class="filters-sidebar">
+      <app-search-filter (filterChange)="handleFilterChange($event)"></app-search-filter>
+    </aside>
+
+    <main class="memes-grid">
+      <h2 class="section-title">Scopri i Meme</h2>
+
+      <div *ngIf="isLoading" class="loading-indicator">
+        <p>Caricamento meme in corso...</p>
+      </div>
+
+      <div *ngIf="!isLoading && memes.length === 0" class="no-memes-message">
+        <p>Nessun meme trovato con i filtri selezionati.</p>
+      </div>
+
+      <div class="memes-grid-container">
+        <div *ngFor="let meme of memes" class="meme-grid-item">
+          <app-meme-card [meme]="meme" (upvote)="upvoteMeme($event)" (downvote)="downvoteMeme($event)"></app-meme-card>
+        </div>
+      </div>
+    </main>
   </div>
+</div>

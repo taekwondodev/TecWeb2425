@@ -11,14 +11,14 @@ export class AuthService {
   private readonly API_URL = `${environment.apiUrl}/auth`;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
-  
+
   constructor(private http: HttpClient) {
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
       this.currentUserSubject.next(JSON.parse(storedUser));
     }
   }
-  
+
   login(loginData: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API_URL}/login`, loginData)
       .pipe(
@@ -29,7 +29,7 @@ export class AuthService {
         })
       );
   }
-  
+
   register(registerData: RegisterRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API_URL}/register`, registerData)
       .pipe(
@@ -40,21 +40,21 @@ export class AuthService {
         })
       );
   }
-  
+
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
   }
-  
+
   isLoggedIn(): boolean {
     return !!this.currentUserSubject.value;
   }
-  
+
   get token(): string | null {
     return localStorage.getItem('token');
   }
-  
+
   get currentUser(): User | null {
     return this.currentUserSubject.value;
   }

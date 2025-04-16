@@ -13,23 +13,23 @@ export class MemeDetailsComponent implements OnInit {
   meme: Meme | null = null;
   isLoading = true;
   error = false;
-  
+
   constructor(
     private route: ActivatedRoute,
     private memeService: MemeService
-  ) {}
-  
+  ) { }
+
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.memeId = params['id'];
       this.loadMeme();
     });
   }
-  
+
   loadMeme(): void {
     this.isLoading = true;
     this.error = false;
-    
+
     this.memeService.getMemeById(this.memeId).subscribe({
       next: (data) => {
         this.meme = data;
@@ -42,10 +42,10 @@ export class MemeDetailsComponent implements OnInit {
       }
     });
   }
-  
+
   upvoteMeme(): void {
     if (!this.meme) return;
-    
+
     this.memeService.upvoteMeme(this.meme.id).subscribe({
       next: (updatedMeme) => {
         this.meme = updatedMeme;
@@ -53,10 +53,10 @@ export class MemeDetailsComponent implements OnInit {
       error: (error) => console.error('Error upvoting meme:', error)
     });
   }
-  
+
   downvoteMeme(): void {
     if (!this.meme) return;
-    
+
     this.memeService.downvoteMeme(this.meme.id).subscribe({
       next: (updatedMeme) => {
         this.meme = updatedMeme;

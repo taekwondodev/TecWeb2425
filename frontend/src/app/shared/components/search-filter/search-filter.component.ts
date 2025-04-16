@@ -9,14 +9,14 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 export class SearchFilterComponent implements OnInit {
   @Output() filterChange = new EventEmitter<any>();
   filterForm: FormGroup;
-  
+
   sortOptions = [
     { value: 'newest', label: 'Più recenti' },
     { value: 'oldest', label: 'Più vecchi' },
     { value: 'mostUpvoted', label: 'Più votati' },
     { value: 'mostCommented', label: 'Più commentati' }
   ];
-  
+
   constructor(private fb: FormBuilder) {
     this.filterForm = this.fb.group({
       sortBy: ['newest'],
@@ -25,13 +25,13 @@ export class SearchFilterComponent implements OnInit {
       dateTo: ['']
     });
   }
-  
+
   ngOnInit(): void {
     this.filterForm.valueChanges.subscribe(values => {
       this.filterChange.emit(values);
     });
   }
-  
+
   resetFilters(): void {
     this.filterForm.reset({
       sortBy: 'newest',

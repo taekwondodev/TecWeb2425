@@ -1,43 +1,38 @@
 <header class="header">
-    <div class="header-container">
-      <div class="logo">
-        <a routerLink="/" class="logo-link">
-          <h1>Meme Museum</h1>
-        </a>
-      </div>
-      
-      <div class="search-bar">
-        <input 
-          type="text" 
-          [(ngModel)]="searchQuery" 
-          placeholder="Cerca meme..."
-          (keyup.enter)="search()"
-        >
-        <button (click)="search()">
-          <i class="fas fa-search"></i>
-        </button>
-      </div>
-      
-      <nav class="main-nav" [class.open]="isMenuOpen">
-        <ul>
-          <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
-          <li><a routerLink="/meme-of-day" routerLinkActive="active">Meme del giorno</a></li>
-          
-          <ng-container *ngIf="currentUser; else notLoggedIn">
-            <li><a routerLink="/upload" routerLinkActive="active">Carica Meme</a></li>
-            <li><a routerLink="/profile" routerLinkActive="active">Profilo</a></li>
-            <li><a href="javascript:void(0)" (click)="logout()">Logout</a></li>
-          </ng-container>
-          
-          <ng-template #notLoggedIn>
-            <li><a routerLink="/login" routerLinkActive="active">Login</a></li>
-            <li><a routerLink="/register" routerLinkActive="active">Registrati</a></li>
-          </ng-template>
-        </ul>
-      </nav>
-      
-      <button class="menu-toggle" (click)="toggleMenu()">
-        <i class="fas" [ngClass]="isMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+  <div class="header-container">
+    <div class="logo">
+      <a routerLink="/" class="logo-link">
+        <h1>Meme Museum</h1>
+      </a>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" [(ngModel)]="searchQuery" placeholder="Cerca meme..." (keyup.enter)="search()">
+      <button (click)="search()">
+        <i class="fas fa-search"></i>
       </button>
     </div>
-  </header>
+
+    <nav class="main-nav" [class.open]="isMenuOpen">
+      <ul>
+        <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
+        <li><a routerLink="/meme-of-day" routerLinkActive="active">Meme del giorno</a></li>
+
+        <ng-container *ngIf="currentUser; else notLoggedIn">
+          <li><a routerLink="/upload" routerLinkActive="active">Carica Meme</a></li>
+          <li><a routerLink="/profile" routerLinkActive="active">Profilo</a></li>
+          <li><a href="javascript:void(0)" (click)="logout()">Logout</a></li>
+        </ng-container>
+
+        <ng-template #notLoggedIn>
+          <li><a routerLink="/login" routerLinkActive="active">Login</a></li>
+          <li><a routerLink="/register" routerLinkActive="active">Registrati</a></li>
+        </ng-template>
+      </ul>
+    </nav>
+
+    <button class="menu-toggle" (click)="toggleMenu()">
+      <i class="fas" [ngClass]="isMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+    </button>
+  </div>
+</header>

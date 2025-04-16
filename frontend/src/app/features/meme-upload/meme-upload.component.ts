@@ -13,7 +13,7 @@ export class MemeUploadComponent {
   isSubmitting = false;
   uploadError = '';
   imagePreview: string | ArrayBuffer | null = null;
-  
+
   constructor(
     private fb: FormBuilder,
     private memeService: MemeService,
@@ -25,35 +25,35 @@ export class MemeUploadComponent {
       tags: this.fb.array([this.createTag()])
     });
   }
-  
+
   get tagsArray(): FormArray {
     return this.uploadForm.get('tags') as FormArray;
   }
-  
+
   createTag(): FormGroup {
     return this.fb.group({
       name: ['', Validators.required]
     });
   }
-  
+
   addTag(): void {
     this.tagsArray.push(this.createTag());
   }
-  
+
   removeTag(index: number): void {
     if (this.tagsArray.length > 1) {
       this.tagsArray.removeAt(index);
     }
   }
-  
+
   onFileSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
-    
+
     if (file) {
       // Update form value
       this.uploadForm.patchValue({ image: file });
       this.uploadForm.get('image')?.updateValueAndValidity();
-      
+
       // Preview image
       const reader = new FileReader();
       reader.onload = () => {
@@ -62,27 +62,27 @@ export class MemeUploadComponent {
       reader.readAsDataURL(file);
     }
   }
-  
+
   uploadMeme(): void {
     if (this.uploadForm.invalid || this.isSubmitting) {
       this.markFormGroupTouched(this.uploadForm);
       return;
     }
-    
+
     this.isSubmitting = true;
     this.uploadError = '';
-    
+
     // Create FormData for file upload
     const formData = new FormData();
     formData.append('title', this.uploadForm.get('title')?.value);
     formData.append('image', this.uploadForm.get('image')?.value);
-    
+
     // Extract tags from form array
     const tags = this.tagsArray.controls.map(control => control.get('name')?.value);
     tags.forEach((tag, index) => {
       formData.append(`tags[${index}]`, tag);
     });
-    
+
     this.memeService.uploadMeme(formData).subscribe({
       next: (meme) => {
         this.isSubmitting = false;
@@ -95,12 +95,12 @@ export class MemeUploadComponent {
       }
     });
   }
-  
+
   // Helper method to mark all controls as touched
   markFormGroupTouched(formGroup: FormGroup): void {
     Object.values(formGroup.controls).forEach(control => {
       control.markAsTouched();
-      
+
       if (control instanceof FormGroup) {
         this.markFormGroupTouched(control);
       } else if (control instanceof FormArray) {

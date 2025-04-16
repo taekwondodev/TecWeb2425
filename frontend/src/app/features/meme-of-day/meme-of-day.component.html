@@ -1,41 +1,37 @@
 <div class="meme-of-day-container">
-    <h1 class="page-title">Meme del Giorno</h1>
-    
-    <div *ngIf="isLoading" class="loading-indicator">
-      <p>Caricamento del meme del giorno...</p>
-    </div>
-    
-    <div *ngIf="!isLoading && !memeOfDay" class="error-message">
-      <p>Impossibile caricare il meme del giorno. Riprova più tardi.</p>
-    </div>
-    
-    <div *ngIf="memeOfDay" class="meme-of-day-card">
-      <div class="meme-header">
-        <h2 class="meme-title">{{ memeOfDay.title }}</h2>
-        <div class="meme-tags">
-          <span *ngFor="let tag of memeOfDay.tags" class="tag">{{ tag }}</span>
-        </div>
-      </div>
-      
-      <div class="meme-image">
-        <img [src]="memeOfDay.imageUrl" [alt]="memeOfDay.title">
-      </div>
-      
-      <div class="meme-info">
-        <div class="upload-info">
-          <span class="upload-date">Caricato il {{ memeOfDay.uploadDate | date:'dd/MM/yyyy' }}</span>
-        </div>
-        
-        <div class="voting-section">
-          <app-upvote-downvote
-            [upvotes]="memeOfDay.upvotes"
-            [downvotes]="memeOfDay.downvotes"
-            (onUpvote)="upvoteMeme()"
-            (onDownvote)="downvoteMeme()"
-          ></app-upvote-downvote>
-        </div>
-      </div>
-      
-      <app-comment-section [memeId]="memeOfDay.id"></app-comment-section>
-    </div>
+  <h1 class="page-title">Meme del Giorno</h1>
+
+  <div *ngIf="isLoading" class="loading-indicator">
+    <p>Caricamento del meme del giorno...</p>
   </div>
+
+  <div *ngIf="!isLoading && !memeOfDay" class="error-message">
+    <p>Impossibile caricare il meme del giorno. Riprova più tardi.</p>
+  </div>
+
+  <div *ngIf="memeOfDay" class="meme-of-day-card">
+    <div class="meme-header">
+      <h2 class="meme-title">{{ memeOfDay.title }}</h2>
+      <div class="meme-tags">
+        <span *ngFor="let tag of memeOfDay.tags" class="tag">{{ tag }}</span>
+      </div>
+    </div>
+
+    <div class="meme-image">
+      <img [src]="memeOfDay.imageUrl" [alt]="memeOfDay.title">
+    </div>
+
+    <div class="meme-info">
+      <div class="upload-info">
+        <span class="upload-date">Caricato il {{ memeOfDay.uploadDate | date:'dd/MM/yyyy' }}</span>
+      </div>
+
+      <div class="voting-section">
+        <app-upvote-downvote [upvotes]="memeOfDay.upvotes" [downvotes]="memeOfDay.downvotes" (onUpvote)="upvoteMeme()"
+          (onDownvote)="downvoteMeme()"></app-upvote-downvote>
+      </div>
+    </div>
+
+    <app-comment-section [memeId]="memeOfDay.id"></app-comment-section>
+  </div>
+</div>

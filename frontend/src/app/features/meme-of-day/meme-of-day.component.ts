@@ -10,13 +10,13 @@ import { Meme } from '../../shared/models/meme.model';
 export class MemeOfDayComponent implements OnInit {
   memeOfDay: Meme | null = null;
   isLoading = true;
-  
-  constructor(private memeService: MemeService) {}
-  
+
+  constructor(private memeService: MemeService) { }
+
   ngOnInit(): void {
     this.loadMemeOfDay();
   }
-  
+
   loadMemeOfDay(): void {
     this.isLoading = true;
     this.memeService.getMemeOfTheDay().subscribe({
@@ -30,10 +30,10 @@ export class MemeOfDayComponent implements OnInit {
       }
     });
   }
-  
+
   upvoteMeme(): void {
     if (!this.memeOfDay) return;
-    
+
     this.memeService.upvoteMeme(this.memeOfDay.id).subscribe({
       next: (updatedMeme) => {
         this.memeOfDay = updatedMeme;
@@ -41,10 +41,10 @@ export class MemeOfDayComponent implements OnInit {
       error: (error) => console.error('Error upvoting meme:', error)
     });
   }
-  
+
   downvoteMeme(): void {
     if (!this.memeOfDay) return;
-    
+
     this.memeService.downvoteMeme(this.memeOfDay.id).subscribe({
       next: (updatedMeme) => {
         this.memeOfDay = updatedMeme;

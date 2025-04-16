@@ -13,20 +13,20 @@ export class MemeCardComponent {
   @Input() showActions = true;
   @Output() upvote = new EventEmitter<string>();
   @Output() downvote = new EventEmitter<string>();
-  
+
   constructor(
     private router: Router,
     private authService: AuthService
-  ) {}
-  
+  ) { }
+
   get isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
   }
-  
+
   viewMeme(): void {
     this.router.navigate(['/meme', this.meme.id]);
   }
-  
+
   upvoteMeme(): void {
     if (this.isLoggedIn) {
       this.upvote.emit(this.meme.id);
@@ -34,7 +34,7 @@ export class MemeCardComponent {
       this.router.navigate(['/login']);
     }
   }
-  
+
   downvoteMeme(): void {
     if (this.isLoggedIn) {
       this.downvote.emit(this.meme.id);

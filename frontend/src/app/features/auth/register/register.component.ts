@@ -4,12 +4,13 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { first } from 'rxjs/operators';
 import { RegisterRequest } from '../../../shared/models/auth.model';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnInit {

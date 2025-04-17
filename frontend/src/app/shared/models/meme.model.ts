@@ -4,22 +4,18 @@ export interface Meme {
   imagePath: string;
   upvotes: number;
   downvotes: number;
-  comments: Comment[];
-  createdAt: Date;
-  createdBy: string;
-}
-
-export interface Comment {
-  id: number;
-  memeId: number;
-  content: string;
   createdAt: Date;
   createdBy: string;
 }
 
 export interface MemeUploadResponse {
   message: string;
-  removed: boolean;
+}
+
+export interface MemeFilterOptions {
+  dateFrom?: string;
+  dateTo?: string;
+  tags?: string[];
 }
 
 export interface GetMemeResponse {
@@ -27,4 +23,14 @@ export interface GetMemeResponse {
   currentPage: number;
   totalPages: number;
   totalMemes: number;
+}
+
+export interface VoteRequest {
+  memeId: number;
+  voteValue: number; // 1 per upvote, -1 per downvote
+}
+
+export interface VoteResponse {
+  message: string;
+  removed: boolean;
 }

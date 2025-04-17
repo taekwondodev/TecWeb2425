@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Meme } from '../../shared/models/meme.model';
+import { GetMemeResponse, Meme, MemeFilterOptions, MemeUploadResponse, VoteResponse } from '../../shared/models/meme.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -10,48 +10,50 @@ import { environment } from '../../../environments/environment';
 export class MemeService {
   private readonly API_URL = `${environment.apiUrl}/memes`;
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(private readonly http: HttpClient) { }
 
-  getAllMemes(sortBy?: string, filterBy?: string): Observable<Meme[]> {
-    let params = new HttpParams();
-    if (sortBy) params = params.append('sortBy', sortBy);
-    if (filterBy) params = params.append('filterBy', filterBy);
+  getMemes(
+    page: number = 1,
+    pageSize: number = 10,
+    sortBy: string = 'newest',
+    filterOptions?: MemeFilterOptions
+  ): Observable<GetMemeResponse> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString())
+      .set('sortBy', sortBy);
 
-    return this.http.get<Meme[]>(this.API_URL, { params });
+    if (filterOptions?.dateFrom) {
+      params = params.set('dateFrom', filterOptions.dateFrom);
+    }
+
+    if (filterOptions?.dateTo) {
+      params = params.set('dateTo', filterOptions.dateTo);
+    }
+
+    if (filterOptions?.tags && filterOptions.tags.length > 0) {
+      params = params.set('filterBy', filterOptions.tags.join(','));
+    }
+
+    return this.http.get<GetMemeResponse>(this.API_URL, { params });
   }
 
   getMemeOfTheDay(): Observable<Meme> {
-    return this.http.get<Meme>(`${this.API_URL}/meme-of-the-day`);
+    return this.http.get<Meme>(`${this.API_URL}/daily`);
   }
 
-  searchMemes(query: string, tags?: string[]): Observable<Meme[]> {
-    let params = new HttpParams().set('query', query);
-    if (tags && tags.length) {
-      tags.forEach(tag => {
-        params = params.append('tags', tag);
-      });
-    }
+  uploadMeme(image: File, tag: string): Observable<MemeUploadResponse> {
+    const formData = new FormData();
+    formData.append('image', image, image.name);
+    formData.append('tag', tag);
 
-    return this.http.get<Meme[]>(`${this.API_URL}/search`, { params });
+    return this.http.post<MemeUploadResponse>(`${this.API_URL}/upload`, formData);
   }
 
-  uploadMeme(memeData: FormData): Observable<Meme> {
-    return this.http.post<Meme>(this.API_URL, memeData);
-  }
-
-  upvoteMeme(id: string): Observable<Meme> {
-    return this.http.post<Meme>(`${this.API_URL}/${id}/upvote`, {});
-  }
-
-  downvoteMeme(id: string): Observable<Meme> {
-    return this.http.post<Meme>(`${this.API_URL}/${id}/downvote`, {});
-  }
-
-  addComment(memeId: string, content: string): Observable<Comment> {
-    return this.http.post<Comment>(`${this.API_URL}/${memeId}/comments`, { content });
-  }
-
-  getComments(memeId: string): Observable<Comment[]> {
-    return this.http.get<Comment[]>(`${this.API_URL}/${memeId}/comments`);
+  voteMeme(memeId: number, voteValue: number): Observable<VoteResponse> {
+    return this.http.patch<VoteResponse>(`${this.API_URL}/vote`, {
+      memeId,
+      voteValue
+    });
   }
 }

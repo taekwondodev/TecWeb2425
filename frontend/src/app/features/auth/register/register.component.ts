@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { first } from 'rxjs/operators';
 import { RegisterRequest } from '../../../shared/models/auth.model';
@@ -8,6 +8,8 @@ import { RegisterRequest } from '../../../shared/models/auth.model';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
+  standalone: true,
+  imports: [ReactiveFormsModule, RouterModule],
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnInit {

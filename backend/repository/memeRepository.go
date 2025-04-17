@@ -14,7 +14,6 @@ type MemeRepository interface {
 	CountsMeme(ctx context.Context, filterDateFrom, filterDateTo string, filterTags []string) (int, error)
 	GetMemes(ctx context.Context, page int, pageSize int, sortBy string, filterDateFrom, filterDateTo string, filterTags []string) ([]models.Meme, error)
 	GetRandomMeme() (*models.Meme, error)
-	SaveComment(ctx context.Context, memeID int, content string, username string) error
 	BeginTransaction(ctx context.Context) (VoteRepository, error)
 }
 
@@ -124,13 +123,6 @@ func (m *MemeRepositoryImpl) GetRandomMeme() (*models.Meme, error) {
 	}
 
 	return &meme, nil
-}
-
-func (m *MemeRepositoryImpl) SaveComment(ctx context.Context, memeID int, content string, username string) error {
-	query := "INSERT INTO comments (meme_id, content, created_by) VALUES ($1, $2, $3)"
-	_, err := m.db.ExecContext(ctx, query, memeID, content, username)
-
-	return err
 }
 
 func (m *MemeRepositoryImpl) BeginTransaction(ctx context.Context) (VoteRepository, error) {

@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Meme } from '../../shared/models/meme.model';
-import { Comment } from '../../shared/models/comment.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -11,7 +10,7 @@ import { environment } from '../../../environments/environment';
 export class MemeService {
   private readonly API_URL = `${environment.apiUrl}/memes`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) {}
 
   getAllMemes(sortBy?: string, filterBy?: string): Observable<Meme[]> {
     let params = new HttpParams();
@@ -23,10 +22,6 @@ export class MemeService {
 
   getMemeOfTheDay(): Observable<Meme> {
     return this.http.get<Meme>(`${this.API_URL}/meme-of-the-day`);
-  }
-
-  getMemeById(id: string): Observable<Meme> {
-    return this.http.get<Meme>(`${this.API_URL}/${id}`);
   }
 
   searchMemes(query: string, tags?: string[]): Observable<Meme[]> {

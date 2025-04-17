@@ -1,6 +1,8 @@
 package dto
 
 import (
+	"backend/models"
+
 	"github.com/go-playground/validator/v10"
 )
 
@@ -12,4 +14,9 @@ type CreateCommentRequest struct {
 func (c *CreateCommentRequest) Validate() error {
 	validate := validator.New()
 	return validate.Struct(c)
+}
+
+type GetCommentResponse struct {
+	Message  string           `json:"message"`
+	Comments []models.Comment `json:"comments"`
 }

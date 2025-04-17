@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MemeService } from '../../core/services/meme.service';
 import { Meme } from '../../shared/models/meme.model';
 
@@ -13,7 +13,7 @@ export class HomeComponent implements OnInit {
   filterBy = '';
   isLoading = true;
 
-  constructor(private memeService: MemeService) { }
+  private readonly memeService = inject(MemeService);
 
   ngOnInit(): void {
     this.loadMemes();

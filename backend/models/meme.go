@@ -8,7 +8,6 @@ type Meme struct {
 	ImagePath string    `json:"imagePath"`
 	Upvotes   int       `json:"upvotes"`
 	Downvotes int       `json:"downvotes"`
-	Comments  []Comment `json:"comments,omitzero"`
 	CreatedAt time.Time `json:"createdAt"`
 	CreatedBy string    `json:"createdBy"`
 }

@@ -8,10 +8,11 @@ import (
 
 var router *http.ServeMux
 
-func SetupRoutes(authController *controller.AuthController, memeController *controller.MemeController) *http.ServeMux {
+func SetupRoutes(authController *controller.AuthController, memeController *controller.MemeController, commentController *controller.CommentController) *http.ServeMux {
 	router = http.NewServeMux()
 	setupAuthRoutes(authController)
 	setupMemeRoutes(memeController)
+	setupCommentRoutes(commentController)
 	setupStaticFileServer()
 	return router
 }
@@ -26,8 +27,12 @@ func setupMemeRoutes(memeController *controller.MemeController) {
 	router.Handle("GET /api/memes", memeMiddleware(memeController.GetMemes))
 	router.Handle("GET /api/memes/daily", memeMiddleware(memeController.GetDailyMeme))
 	router.Handle("POST /api/memes/upload", memeMiddleware(memeController.UploadMeme))
-	router.Handle("POST /api/memes/comment", memeMiddleware(memeController.CreateComment))
 	router.Handle("PATCH /api/memes/vote", memeMiddleware(memeController.VoteMeme))
+}
+
+func setupCommentRoutes(commentController *controller.CommentController) {
+	router.Handle("GET /api/comment", memeMiddleware(commentController.GetComments))
+	router.Handle("POST /api/comment", memeMiddleware(commentController.CreateComment))
 }
 
 func authMiddleware(h middleware.HandlerFunc) http.HandlerFunc {

@@ -14,3 +14,7 @@ export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface NavigationStatus {
+  username: string;
+}

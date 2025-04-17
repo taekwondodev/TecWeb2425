@@ -1,45 +1,47 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, inject, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { first } from 'rxjs/operators';
+import { LoginRequest, NavigationStatus } from '../../../shared/models/auth.model';
 
 @Component({
   selector: 'app-login',
+  standalone: true,
+  imports: [RouterModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+
   loginForm!: FormGroup;
   loading = false;
   submitted = false;
   error = '';
   returnUrl: string = '/';
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private authService: AuthService
-  ) {
-    // Redirect to home if already logged in
-    if (this.authService.currentUser) {
+  ngOnInit(): void {
+    if (this.authService.authStatus$) {
       this.router.navigate(['/']);
     }
-  }
 
-  ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
+      username: ['', [Validators.required]],
       password: ['', Validators.required]
     });
 
-    // Get return url from route parameters or default to '/'
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    const navigationState = this.router.getCurrentNavigation()?.extras.state as NavigationStatus;
+    if (navigationState?.username) {
+      this.loginForm.patchValue({ username: navigationState.username });
+    }
   }
 
-  // Getter per accesso facile ai campi del form
-  get f() { return this.loginForm.controls; }
+  get username() { return this.loginForm.get('username'); }
+
+  get password() { return this.loginForm.get('password'); }
 
   onSubmit(): void {
     this.submitted = true;
@@ -50,14 +52,19 @@ export class LoginComponent implements OnInit {
     }
 
     this.loading = true;
-    this.authService.login(this.f['email'].value, this.f['password'].value)
+
+    const loginRequest: LoginRequest = {
+      username: this.username!.value,
+      password: this.password!.value
+    }
+    this.authService.login(loginRequest)
       .pipe(first())
       .subscribe({
         next: () => {
           this.router.navigate([this.returnUrl]);
         },
         error: error => {
-          this.error = error.error?.message || 'Login failed';
+          this.error = error.error?.message ?? 'Login failed';
           this.loading = false;
         }
       });

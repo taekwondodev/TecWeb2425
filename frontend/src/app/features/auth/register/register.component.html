@@ -10,40 +10,30 @@
       <div class="form-group mb-3">
         <label for="username">Username</label>
         <input type="text" formControlName="username" class="form-control"
-          [ngClass]="{ 'is-invalid': submitted && f['username'].errors }" />
-        <div *ngIf="submitted && f['username'].errors" class="invalid-feedback">
-          <div *ngIf="f['username'].errors['required']">Username richiesto</div>
-          <div *ngIf="f['username'].errors['minlength']">Username deve essere almeno 3 caratteri</div>
+          [ngClass]="{ 'is-invalid': submitted && username!.errors }" />
+        <div *ngIf="submitted && username!.errors" class="invalid-feedback">
+          <div *ngIf="username!.errors['required']">Username richiesto</div>
+          <div *ngIf="username!.errors['minlength']">Username deve essere almeno 3 caratteri</div>
         </div>
       </div>
 
       <div class="form-group mb-3">
         <label for="email">Email</label>
         <input type="email" formControlName="email" class="form-control"
-          [ngClass]="{ 'is-invalid': submitted && f['email'].errors }" />
-        <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
-          <div *ngIf="f['email'].errors['required']">Email richiesta</div>
-          <div *ngIf="f['email'].errors['email']">Inserisci un'email valida</div>
+          [ngClass]="{ 'is-invalid': submitted && email!.errors }" />
+        <div *ngIf="submitted && email!.errors" class="invalid-feedback">
+          <div *ngIf="email!.errors['required']">Email richiesta</div>
+          <div *ngIf="email!.errors['email']">Inserisci un'email valida</div>
         </div>
       </div>
 
       <div class="form-group mb-3">
         <label for="password">Password</label>
         <input type="password" formControlName="password" class="form-control"
-          [ngClass]="{ 'is-invalid': submitted && f['password'].errors }" />
-        <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
-          <div *ngIf="f['password'].errors['required']">Password richiesta</div>
-          <div *ngIf="f['password'].errors['minlength']">Password deve essere almeno 6 caratteri</div>
-        </div>
-      </div>
-
-      <div class="form-group mb-3">
-        <label for="confirmPassword">Conferma Password</label>
-        <input type="password" formControlName="confirmPassword" class="form-control"
-          [ngClass]="{ 'is-invalid': submitted && f['confirmPassword'].errors }" />
-        <div *ngIf="submitted && f['confirmPassword'].errors" class="invalid-feedback">
-          <div *ngIf="f['confirmPassword'].errors['required']">Conferma password richiesta</div>
-          <div *ngIf="f['confirmPassword'].errors['mustMatch']">Le password devono coincidere</div>
+          [ngClass]="{ 'is-invalid': submitted && password!.errors }" />
+        <div *ngIf="submitted && password!.errors" class="invalid-feedback">
+          <div *ngIf="password!.errors['required']">Password richiesta</div>
+          <div *ngIf="password!.errors['minlength']">Password deve essere almeno 6 caratteri</div>
         </div>
       </div>
 

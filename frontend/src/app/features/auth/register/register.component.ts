@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { first } from 'rxjs/operators';
+import { RegisterRequest } from '../../../shared/models/auth.model';
 
 @Component({
   selector: 'app-register',
@@ -10,78 +11,49 @@ import { first } from 'rxjs/operators';
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnInit {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+
   registerForm!: FormGroup;
   loading = false;
   submitted = false;
   error = '';
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private router: Router,
-    private authService: AuthService
-  ) {
-    // Redirect to home if already logged in
-    if (this.authService.currentUser) {
-      this.router.navigate(['/']);
-    }
-  }
-
   ngOnInit(): void {
-    this.registerForm = this.formBuilder.group({
+    this.registerForm = this.formBuilder.nonNullable.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required]
-    }, {
-      validator: this.mustMatch('password', 'confirmPassword')
+      password: ['', [Validators.required, Validators.minLength(8)]],
     });
   }
 
-  // Getter per accesso facile ai campi del form
-  get f() { return this.registerForm.controls; }
-
-  mustMatch(controlName: string, matchingControlName: string) {
-    return (formGroup: FormGroup) => {
-      const control = formGroup.controls[controlName];
-      const matchingControl = formGroup.controls[matchingControlName];
-
-      if (matchingControl.errors && !matchingControl.errors['mustMatch']) {
-        // return if another validator has already found an error
-        return;
-      }
-
-      // set error on matchingControl if validation fails
-      if (control.value !== matchingControl.value) {
-        matchingControl.setErrors({ mustMatch: true });
-      } else {
-        matchingControl.setErrors(null);
-      }
-    };
-  }
+  get username() { return this.registerForm.get('username'); }
+  get email() { return this.registerForm.get('email'); }
+  get password() { return this.registerForm.get('password'); }
 
   onSubmit(): void {
     this.submitted = true;
 
-    // Stop here if form is invalid
     if (this.registerForm.invalid) {
       return;
     }
 
     this.loading = true;
-    this.authService.register(
-      this.f['username'].value,
-      this.f['email'].value,
-      this.f['password'].value
-    )
-      .pipe(first())
-      .subscribe({
-        next: () => {
-          this.router.navigate(['/']);
-        },
-        error: error => {
-          this.error = error.error?.message || 'Registrazione fallita';
-          this.loading = false;
-        }
-      });
+    const registerRequest: RegisterRequest = {
+      username: this.username!.value,
+      email: this.email!.value,
+      password: this.password!.value
+    };
+
+    this.authService.register(registerRequest).pipe(first()).subscribe({
+      next: () => {
+        this.router.navigate(['/login'], { state: { username: this.username!.value } });
+      },
+      error: error => {
+        this.error = error.error?.message ?? 'Registrazione fallita';
+        this.loading = false;
+      }
+    });
   }
 }

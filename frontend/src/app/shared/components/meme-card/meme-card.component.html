@@ -1,34 +1,26 @@
 <div class="meme-card">
   <div class="meme-image" (click)="viewMeme()">
-    <img [src]="meme.imageUrl" [alt]="meme.title">
+    <img [src]="meme.imagePath" [alt]="meme.tag">
   </div>
 
   <div class="meme-info">
-    <h3 class="meme-title">{{ meme.title }}</h3>
+    <h3 class="meme-title">{{ meme.tag }}</h3>
 
     <div class="meme-meta">
       <span class="upload-date">
-        {{ meme.uploadDate | date:'dd/MM/yyyy' }}
+        {{ meme.createdAt | date:'dd/MM/yyyy' }}
       </span>
 
-      <div class="meme-tags">
-        <span *ngFor="let tag of meme.tags" class="tag">{{ tag }}</span>
+      <div *ngIf="showActions" class="meme-actions">
+        <div class="vote-actions">
+          <button (click)="upvoteMeme()" [disabled]="!isLoggedIn" class="upvote-btn">
+            <i class="fas fa-arrow-up"></i> {{ meme.upvotes }}
+          </button>
+          <button (click)="downvoteMeme()" [disabled]="!isLoggedIn" class="downvote-btn">
+            <i class="fas fa-arrow-down"></i> {{ meme.downvotes }}
+          </button>
+        </div>
       </div>
-    </div>
-
-    <div *ngIf="showActions" class="meme-actions">
-      <div class="vote-actions">
-        <button (click)="upvoteMeme()" [disabled]="!isLoggedIn" class="upvote-btn">
-          <i class="fas fa-arrow-up"></i> {{ meme.upvotes }}
-        </button>
-        <button (click)="downvoteMeme()" [disabled]="!isLoggedIn" class="downvote-btn">
-          <i class="fas fa-arrow-down"></i> {{ meme.downvotes }}
-        </button>
-      </div>
-
-      <button class="comment-btn" (click)="viewMeme()">
-        <i class="fas fa-comment"></i> {{ meme.comments?.length || 0 }}
-      </button>
     </div>
   </div>
 </div>

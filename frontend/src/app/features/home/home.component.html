@@ -18,15 +18,23 @@
         <p>Caricamento meme in corso...</p>
       </div>
 
-      <div *ngIf="!isLoading && memes.length === 0" class="no-memes-message">
+      <div *ngIf="!isLoading && (!memeResponse || memeResponse.memes.length === 0)" class="no-memes-message">
         <p>Nessun meme trovato con i filtri selezionati.</p>
       </div>
 
       <div class="memes-grid-container">
-        <div *ngFor="let meme of memes" class="meme-grid-item">
+        <div *ngFor="let meme of memeResponse?.memes" class="meme-grid-item">
           <app-meme-card [meme]="meme" (upvote)="upvoteMeme($event)" (downvote)="downvoteMeme($event)"></app-meme-card>
         </div>
       </div>
+
+      <app-paginator 
+        *ngIf="memeResponse && memeResponse.totalPages > 1"
+        [currentPage]="currentPage" 
+        [totalPages]="memeResponse?.totalPages || 1"
+        (pageChange)="onPageChange($event)"
+      ></app-paginator>
+
     </main>
   </div>
 </div>

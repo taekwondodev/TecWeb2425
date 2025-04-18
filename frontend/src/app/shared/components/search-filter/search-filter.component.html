@@ -13,23 +13,31 @@
 
     <div class="form-group">
       <label for="tags">Tag (separati da virgola):</label>
-      <input type="text" id="tags" formControlName="tags" class="form-control" placeholder="funny, cats, gaming...">
+      <input type="text" id="tags" formControlName="tags" class="form-control" placeholder="funny, cats, gaming..."
+        (keyup.enter)="applyFilters()">
     </div>
 
     <div class="date-range">
       <div class="form-group">
         <label for="dateFrom">Da data:</label>
-        <input type="date" id="dateFrom" formControlName="dateFrom" class="form-control">
+        <input type="date" id="dateFrom" formControlName="dateFrom" class="form-control" (change)="applyFilters()">
       </div>
 
       <div class="form-group">
         <label for="dateTo">A data:</label>
-        <input type="date" id="dateTo" formControlName="dateTo" class="form-control">
+        <input type="date" id="dateTo" formControlName="dateTo" class="form-control" (change)="applyFilters()">
       </div>
     </div>
 
-    <button type="button" class="reset-btn" (click)="resetFilters()">
-      Reimposta filtri
-    </button>
+    <div class="filter-actions">
+      <button type="button" class="btn apply-btn" (click)="applyFilters()">
+        Applica filtri
+      </button>
+
+      <button type="button" class="reset-btn" (click)="resetFilters()">
+        Reimposta filtri
+      </button>
+    </div>
+
   </form>
 </div>

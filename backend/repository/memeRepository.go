@@ -68,6 +68,8 @@ func (m *MemeRepositoryImpl) GetMemes(ctx context.Context, page int, pageSize in
 		query += " ORDER BY upvotes DESC"
 	case "downvotes":
 		query += " ORDER BY downvotes DESC"
+	case "oldest":
+		query += " ORDER BY created_at ASC"
 	default:
 		query += " ORDER BY created_at DESC"
 	}

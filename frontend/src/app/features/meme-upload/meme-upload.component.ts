@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MemeService } from '../../core/services/meme.service';
@@ -6,6 +6,8 @@ import { MemeService } from '../../core/services/meme.service';
 @Component({
   selector: 'app-meme-upload',
   templateUrl: './meme-upload.component.html',
+  standalone: true,
+  imports: [],
   styleUrls: ['./meme-upload.component.scss']
 })
 export class MemeUploadComponent {
@@ -14,11 +16,11 @@ export class MemeUploadComponent {
   uploadError = '';
   imagePreview: string | ArrayBuffer | null = null;
 
-  constructor(
-    private fb: FormBuilder,
-    private memeService: MemeService,
-    private router: Router
-  ) {
+  private readonly fb: FormBuilder = inject(FormBuilder);
+  private readonly memeService: MemeService = inject(MemeService);
+  private readonly router: Router = inject(Router);
+
+  constructor() {
     this.uploadForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
       image: [null, Validators.required],
@@ -63,6 +65,7 @@ export class MemeUploadComponent {
     }
   }
 
+  // forse qui devo solo passare file e tag
   uploadMeme(): void {
     if (this.uploadForm.invalid || this.isSubmitting) {
       this.markFormGroupTouched(this.uploadForm);

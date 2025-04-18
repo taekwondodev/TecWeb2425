@@ -1,16 +1,28 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MemeService } from '../../core/services/meme.service';
-import { Meme } from '../../shared/models/meme.model';
+import { GetMemeResponse, VoteResponse } from '../../shared/models/meme.model';
+import { CommonModule } from '@angular/common';
+import { SearchFilterComponent } from "../../shared/components/search-filter/search-filter.component";
+import { MemeCardComponent } from "../../shared/components/meme-card/meme-card.component";
+import { PaginatorComponent } from "../../shared/components/paginator/paginator.component";
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
+  standalone: true,
+  imports: [CommonModule, SearchFilterComponent, MemeCardComponent, PaginatorComponent],
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-  memes: Meme[] = [];
+  memeResponse: GetMemeResponse | null = null;
+  currentPage = 1;
+  pageSize = 10;
   sortBy = 'newest';
-  filterBy = '';
+  filterOptions = {
+    dateFrom: '',
+    dateTo: '',
+    tags: [] as string[]
+  };
   isLoading = true;
 
   private readonly memeService = inject(MemeService);
@@ -21,9 +33,14 @@ export class HomeComponent implements OnInit {
 
   loadMemes(): void {
     this.isLoading = true;
-    this.memeService.getAllMemes(this.sortBy, this.filterBy).subscribe({
-      next: (data) => {
-        this.memes = data;
+    this.memeService.getMemes(
+      this.currentPage,
+      this.pageSize,
+      this.sortBy,
+      this.filterOptions
+    ).subscribe({
+      next: (response) => {
+        this.memeResponse = response;
         this.isLoading = false;
       },
       error: (error) => {
@@ -33,45 +50,88 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  handleFilterChange(filters: any): void {
-    this.sortBy = filters.sortBy;
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadMemes();
+  }
 
-    // Process tags if any
-    if (filters.tags) {
-      const tagsArray = filters.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag);
-      if (tagsArray.length > 0) {
-        this.filterBy = tagsArray.join(',');
-      } else {
-        this.filterBy = '';
-      }
-    } else {
-      this.filterBy = '';
-    }
+  handleFilterChange(filters: any): void {
+    this.currentPage = 1; // Reset alla prima pagina quando cambiano i filtri
+    this.sortBy = filters.sortBy;
+    this.filterOptions = {
+      dateFrom: filters.dateFrom ?? '',
+      dateTo: filters.dateTo ?? '',
+      tags: filters.tags ? filters.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag) : []
+    };
 
     this.loadMemes();
   }
 
-  upvoteMeme(memeId: string): void {
-    this.memeService.upvoteMeme(memeId).subscribe({
-      next: (updatedMeme) => {
-        const index = this.memes.findIndex(m => m.id === memeId);
+  upvoteMeme(memeId: number): void {
+    this.memeService.voteMeme(memeId, 1).subscribe({
+      next: (response) => {
+        if (!this.memeResponse) return;
+        const index = this.memeResponse.memes.findIndex(m => m.id === memeId);
         if (index !== -1) {
-          this.memes[index] = updatedMeme;
+          this.updateMemeUpvote(response, index);
         }
       },
       error: (error) => console.error('Error upvoting meme:', error)
     });
   }
 
-  downvoteMeme(memeId: string): void {
-    this.memeService.downvoteMeme(memeId).subscribe({
+  downvoteMeme(memeId: number): void {
+    this.memeService.voteMeme(memeId, -1).subscribe({
       next: (updatedMeme) => {
-        const index = this.memes.findIndex(m => m.id === memeId);
+        if (!this.memeResponse) return;
+        const index = this.memeResponse.memes.findIndex(m => m.id === memeId);
         if (index !== -1) {
-          this.memes[index] = updatedMeme;
+          this.updateMemeDownvote(updatedMeme, index);
         }
       },
       error: (error) => console.error('Error downvoting meme:', error)
     });
+  }
+
+  updateMemeUpvote(response: VoteResponse, index: number): void {
+    if (!this.memeResponse) return;
+
+    if (response.removed) {
+      this.memeResponse.memes[index] = {
+        ...this.memeResponse.memes[index],
+        upvotes: this.memeResponse.memes[index].upvotes - 1,
+        downvotes: this.memeResponse.memes[index].downvotes,
+        createdAt: this.memeResponse.memes[index].createdAt,
+        createdBy: this.memeResponse.memes[index].createdBy
+      };
+    } else {
+      this.memeResponse.memes[index] = {
+        ...this.memeResponse.memes[index],
+        upvotes: this.memeResponse.memes[index].upvotes + 1,
+        downvotes: this.memeResponse.memes[index].downvotes,
+        createdAt: this.memeResponse.memes[index].createdAt,
+        createdBy: this.memeResponse.memes[index].createdBy
+      };
+    }
+  }
+
+  updateMemeDownvote(response: VoteResponse, index: number): void {
+    if (!this.memeResponse) return;
+
+    if (response.removed) {
+      this.memeResponse.memes[index] = {
+        ...this.memeResponse.memes[index],
+        downvotes: this.memeResponse.memes[index].downvotes - 1,
+        createdAt: this.memeResponse.memes[index].createdAt,
+        createdBy: this.memeResponse.memes[index].createdBy
+      };
+    } else {
+      this.memeResponse.memes[index] = {
+        ...this.memeResponse.memes[index],
+        downvotes: this.memeResponse.memes[index].downvotes + 1,
+        createdAt: this.memeResponse.memes[index].createdAt,
+        createdBy: this.memeResponse.memes[index].createdBy
+      };
+    }
   }
 }

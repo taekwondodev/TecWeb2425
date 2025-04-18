@@ -1,23 +1,34 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, Output, EventEmitter, inject } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-search-filter',
   templateUrl: './search-filter.component.html',
+  standalone: true,
+  imports: [ReactiveFormsModule, CommonModule],
   styleUrls: ['./search-filter.component.scss']
 })
-export class SearchFilterComponent implements OnInit {
-  @Output() filterChange = new EventEmitter<any>();
+export class SearchFilterComponent {
+  @Output() filterChange = new EventEmitter<{
+    sortBy: string;
+    tags?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }>();
+
   filterForm: FormGroup;
 
   sortOptions = [
     { value: 'newest', label: 'Più recenti' },
     { value: 'oldest', label: 'Più vecchi' },
-    { value: 'mostUpvoted', label: 'Più votati' },
-    { value: 'mostCommented', label: 'Più commentati' }
+    { value: 'upvotes', label: 'Più votati' },
+    { value: 'downvotes', label: 'Meno votati' },
   ];
 
-  constructor(private fb: FormBuilder) {
+  private readonly fb = inject(FormBuilder);
+
+  constructor() {
     this.filterForm = this.fb.group({
       sortBy: ['newest'],
       tags: [''],
@@ -26,10 +37,18 @@ export class SearchFilterComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.filterForm.valueChanges.subscribe(values => {
-      this.filterChange.emit(values);
-    });
+  applyFilters(): void {
+    const formValue = this.filterForm.value;
+    
+    // Converte le date in formato ISO (YYYY-MM-DD) se presenti
+    const filters = {
+      sortBy: formValue.sortBy,
+      tags: formValue.tags,
+      dateFrom: formValue.dateFrom ? new Date(formValue.dateFrom).toISOString().split('T')[0] : '',
+      dateTo: formValue.dateTo ? new Date(formValue.dateTo).toISOString().split('T')[0] : ''
+    };
+
+    this.filterChange.emit(filters);
   }
 
   resetFilters(): void {
@@ -39,6 +58,6 @@ export class SearchFilterComponent implements OnInit {
       dateFrom: '',
       dateTo: ''
     });
-    this.filterChange.emit(this.filterForm.value);
+    this.applyFilters();
   }
 }

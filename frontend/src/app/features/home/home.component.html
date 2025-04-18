@@ -24,14 +24,14 @@
 
       <div class="memes-grid-container">
         <div *ngFor="let meme of memeResponse?.memes" class="meme-grid-item">
-          <app-meme-card [meme]="meme" (upvote)="upvoteMeme($event)" (downvote)="downvoteMeme($event)"></app-meme-card>
+          <app-meme-card [meme]="meme"></app-meme-card>
         </div>
       </div>
 
       <app-paginator 
         *ngIf="memeResponse && memeResponse.totalPages > 1"
         [currentPage]="currentPage" 
-        [totalPages]="memeResponse?.totalPages || 1"
+        [totalPages]="memeResponse.totalPages || 1"
         (pageChange)="onPageChange($event)"
       ></app-paginator>
 

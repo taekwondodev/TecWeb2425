@@ -24,6 +24,7 @@ import (
 type MemeService interface {
 	GetMemes(ctx context.Context, page int, pageSize int, sortBy string, filterOptions dto.MemeFilterOptions) (*dto.GetMemeResponse, error)
 	GetDailyMeme() (*models.Meme, error)
+	GetMemeById(id int) (*models.Meme, error)
 	UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, username string) (*dto.MemeUploadResponse, error)
 	VoteMeme(ctx context.Context, id int, req dto.VoteRequest) (*dto.MemeUploadResponse, error)
 }
@@ -98,6 +99,19 @@ func (s *MemeServiceImpl) GetDailyMeme() (*models.Meme, error) {
 
 	s.cache = meme
 	s.lastUpdate = time.Now()
+
+	return meme, nil
+}
+
+func (s *MemeServiceImpl) GetMemeById(id int) (*models.Meme, error) {
+	meme, err := s.repo.GetMemeById(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if meme == nil {
+		return nil, customerrors.ErrMemeNotFound
+	}
 
 	return meme, nil
 }

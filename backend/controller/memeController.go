@@ -75,6 +75,22 @@ func (c *MemeController) GetDailyMeme(w http.ResponseWriter, r *http.Request) er
 	return c.respond(w, http.StatusOK, res)
 }
 
+func (c *MemeController) GetMemeById(w http.ResponseWriter, r *http.Request) error {
+	memeId, err := strconv.Atoi(r.URL.Query().Get("memeId"))
+	if err != nil || memeId < 1 {
+		return customerrors.ErrBadRequest
+	}
+
+	res, err := c.service.GetMemeById(memeId)
+	if err != nil {
+		return err
+	}
+
+	res.ImagePath = c.buildImageUrl(r, res.ImagePath)
+
+	return c.respond(w, http.StatusOK, res)
+}
+
 func (c *MemeController) UploadMeme(w http.ResponseWriter, r *http.Request) error {
 	claims, err := middleware.GetClaimsFromContext(r.Context())
 	if err != nil {

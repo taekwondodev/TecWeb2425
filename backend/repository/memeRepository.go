@@ -14,6 +14,7 @@ type MemeRepository interface {
 	CountsMeme(ctx context.Context, filterDateFrom, filterDateTo string, filterTags []string) (int, error)
 	GetMemes(ctx context.Context, page int, pageSize int, sortBy string, filterDateFrom, filterDateTo string, filterTags []string) ([]models.Meme, error)
 	GetRandomMeme() (*models.Meme, error)
+	GetMemeById(id int) (*models.Meme, error)
 	BeginTransaction(ctx context.Context) (VoteRepository, error)
 }
 
@@ -121,6 +122,28 @@ func (m *MemeRepositoryImpl) GetRandomMeme() (*models.Meme, error) {
 	)
 
 	if err != nil {
+		return nil, err
+	}
+
+	return &meme, nil
+}
+
+func (m *MemeRepositoryImpl) GetMemeById(id int) (*models.Meme, error) {
+	var meme models.Meme
+	query := `
+		SELECT id, tag, image_path, upvotes, downvotes, created_by, created_at
+		FROM memes
+		WHERE id = $1
+	`
+	err := m.db.QueryRow(query, id).Scan(
+		&meme.ID, &meme.Tag, &meme.ImagePath,
+		&meme.Upvotes, &meme.Downvotes,
+		&meme.CreatedBy, &meme.CreatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
 		return nil, err
 	}
 

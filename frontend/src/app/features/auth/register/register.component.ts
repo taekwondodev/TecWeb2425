@@ -1,8 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { first } from 'rxjs/operators';
 import { RegisterRequest } from '../../../shared/models/auth.model';
 import { CommonModule } from '@angular/common';
 
@@ -13,7 +12,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent implements OnInit {
+export class RegisterComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
@@ -23,7 +22,7 @@ export class RegisterComponent implements OnInit {
   submitted = false;
   error = '';
 
-  ngOnInit(): void {
+  constructor() {
     this.registerForm = this.formBuilder.nonNullable.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
@@ -35,28 +34,32 @@ export class RegisterComponent implements OnInit {
   get email() { return this.registerForm.get('email'); }
   get password() { return this.registerForm.get('password'); }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     this.submitted = true;
+    this.error = '';
 
     if (this.registerForm.invalid) {
       return;
     }
 
     this.loading = true;
-    const registerRequest: RegisterRequest = {
-      username: this.username!.value,
-      email: this.email!.value,
-      password: this.password!.value
-    };
+    try {
+      const registerRequest: RegisterRequest = {
+        username: this.username!.value,
+        email: this.email!.value,
+        password: this.password!.value
+      };
 
-    this.authService.register(registerRequest).pipe(first()).subscribe({
-      next: () => {
-        this.router.navigate(['/login'], { state: { username: this.username!.value } });
-      },
-      error: error => {
-        this.error = error.error?.message ?? 'Registrazione fallita';
-        this.loading = false;
-      }
-    });
+      await this.authService.register(registerRequest);
+      await this.router.navigate(
+        ['/login'],
+        { state: { username: this.username!.value } }
+      );
+    } catch (error: any) {
+      this.error = error.error?.message ?? 'Registrazione fallita';
+    } finally {
+      this.loading = false;
+    }
   }
+
 }

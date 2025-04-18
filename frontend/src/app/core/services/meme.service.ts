@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { GetMemeResponse, Meme, MemeFilterOptions, MemeUploadResponse, VoteResponse } from '../../shared/models/meme.model';
 import { environment } from '../../../environments/environment';
 
@@ -12,12 +12,12 @@ export class MemeService {
 
   constructor(private readonly http: HttpClient) { }
 
-  getMemes(
+  async getMemes(
     page: number = 1,
     pageSize: number = 10,
     sortBy: string = 'newest',
     filterOptions?: MemeFilterOptions
-  ): Observable<GetMemeResponse> {
+  ): Promise<GetMemeResponse> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('pageSize', pageSize.toString())
@@ -35,25 +35,35 @@ export class MemeService {
       params = params.set('filterBy', filterOptions.tags.join(','));
     }
 
-    return this.http.get<GetMemeResponse>(this.API_URL, { params });
+    return firstValueFrom(this.http.get<GetMemeResponse>(this.API_URL, { params }));
   }
 
-  getMemeOfTheDay(): Observable<Meme> {
-    return this.http.get<Meme>(`${this.API_URL}/daily`);
+  async getMemeOfTheDay(): Promise<Meme> {
+    return firstValueFrom(this.http.get<Meme>(`${this.API_URL}/daily`));
   }
 
-  uploadMeme(image: File, tag: string): Observable<MemeUploadResponse> {
+  async getMemeById(memeId: number): Promise<Meme> {
+    return firstValueFrom(this.http.get<Meme>(`${this.API_URL}/id`, 
+      { params: { memeId: memeId.toString() } }
+    ));
+  }
+
+  async uploadMeme(image: File, tag: string): Promise<MemeUploadResponse> {
     const formData = new FormData();
     formData.append('image', image, image.name);
     formData.append('tag', tag);
 
-    return this.http.post<MemeUploadResponse>(`${this.API_URL}/upload`, formData);
+    return firstValueFrom(
+      this.http.post<MemeUploadResponse>(`${this.API_URL}/upload`, formData)
+    );
   }
 
-  voteMeme(memeId: number, voteValue: number): Observable<VoteResponse> {
-    return this.http.patch<VoteResponse>(`${this.API_URL}/vote`, {
-      memeId,
-      voteValue
-    });
+  async voteMeme(memeId: number, voteValue: number): Promise<VoteResponse> {
+    return firstValueFrom(
+      this.http.patch<VoteResponse>(`${this.API_URL}/vote`, {
+        memeId,
+        voteValue
+      })
+    );
   }
 }

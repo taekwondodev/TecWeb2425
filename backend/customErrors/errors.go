@@ -20,6 +20,7 @@ var (
 	ErrEmailAlreadyExists    = &Error{Code: 409, Message: "email already exists"}
 	ErrInvalidCredentials    = &Error{Code: 401, Message: "invalid credentials"}
 	ErrUserNotFound          = &Error{Code: 404, Message: "user not found"}
+	ErrMemeNotFound          = &Error{Code: 404, Message: "meme not found"}
 	ErrImageNotFound         = &Error{Code: 404, Message: "image not found"}
 	ErrHttpMethodNotAllowed  = &Error{Code: 405, Message: "http method not allowed"}
 	ErrMediaTypeNotAllowed   = &Error{Code: 415, Message: "media type not allowed"}

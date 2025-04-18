@@ -2,7 +2,6 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { first } from 'rxjs/operators';
 import { LoginRequest, NavigationStatus } from '../../../shared/models/auth.model';
 import { CommonModule } from '@angular/common';
 
@@ -27,6 +26,7 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     if (this.authService.authStatus$) {
       this.router.navigate(['/']);
+      return;
     }
 
     this.loginForm = this.formBuilder.group({
@@ -44,30 +44,28 @@ export class LoginComponent implements OnInit {
 
   get password() { return this.loginForm.get('password'); }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     this.submitted = true;
+    this.error = '';
 
-    // Stop here if form is invalid
     if (this.loginForm.invalid) {
       return;
     }
 
     this.loading = true;
 
-    const loginRequest: LoginRequest = {
-      username: this.username!.value,
-      password: this.password!.value
+    try {
+      const loginRequest: LoginRequest = {
+        username: this.username!.value,
+        password: this.password!.value
+      };
+      
+      await this.authService.login(loginRequest);
+      await this.router.navigate([this.returnUrl]);
+    } catch (error: any) {
+      this.error = error.error?.message ?? 'Login failed';
+    } finally {
+      this.loading = false;
     }
-    this.authService.login(loginRequest)
-      .pipe(first())
-      .subscribe({
-        next: () => {
-          this.router.navigate([this.returnUrl]);
-        },
-        error: error => {
-          this.error = error.error?.message ?? 'Login failed';
-          this.loading = false;
-        }
-      });
   }
 }

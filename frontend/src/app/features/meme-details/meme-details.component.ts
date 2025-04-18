@@ -1,67 +1,46 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MemeService } from '../../core/services/meme.service';
 import { Meme } from '../../shared/models/meme.model';
+import { CommonModule } from '@angular/common';
+import { CommentSectionComponent } from "../../shared/components/comment-section/comment-section.component";
+import { UpvoteDownvoteComponent } from "../../shared/components/upvote-downvote/upvote-downvote.component";
 
 @Component({
   selector: 'app-meme-details',
   templateUrl: './meme-details.component.html',
+  standalone: true,
+  imports: [CommonModule, CommentSectionComponent, UpvoteDownvoteComponent, RouterModule],
   styleUrls: ['./meme-details.component.scss']
 })
-export class MemeDetailsComponent implements OnInit {
-  memeId: string = '';
+export class MemeDetailsComponent {
+  memeId: number = 0;
   meme: Meme | null = null;
   isLoading = true;
   error = false;
 
-  constructor(
-    private route: ActivatedRoute,
-    private memeService: MemeService
-  ) { }
+  private readonly route = inject(ActivatedRoute);
+  private readonly memeService = inject(MemeService);
 
-  ngOnInit(): void {
+  constructor() {
     this.route.params.subscribe(params => {
-      this.memeId = params['id'];
+      this.memeId = params['memeId'];
       this.loadMeme();
     });
   }
 
-  loadMeme(): void {
+  async loadMeme(): Promise<void> {
     this.isLoading = true;
     this.error = false;
 
-    this.memeService.getMemeById(this.memeId).subscribe({
-      next: (data) => {
-        this.meme = data;
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error loading meme:', err);
-        this.isLoading = false;
-        this.error = true;
-      }
-    });
+    try {
+      this.meme = await this.memeService.getMemeById(this.memeId);
+    } catch (err) {
+      console.error('Error loading meme:', err);
+      this.error = true;
+    } finally {
+      this.isLoading = false;
+    }
   }
 
-  upvoteMeme(): void {
-    if (!this.meme) return;
-
-    this.memeService.upvoteMeme(this.meme.id).subscribe({
-      next: (updatedMeme) => {
-        this.meme = updatedMeme;
-      },
-      error: (error) => console.error('Error upvoting meme:', error)
-    });
-  }
-
-  downvoteMeme(): void {
-    if (!this.meme) return;
-
-    this.memeService.downvoteMeme(this.meme.id).subscribe({
-      next: (updatedMeme) => {
-        this.meme = updatedMeme;
-      },
-      error: (error) => console.error('Error downvoting meme:', error)
-    });
-  }
 }

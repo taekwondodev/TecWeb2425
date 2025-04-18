@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { HttpRequest, HttpEvent, HttpErrorResponse, HttpInterceptorFn, HttpHandlerFn } from '@angular/common/http';
-import { catchError, Observable, switchMap, throwError } from 'rxjs';
+import { catchError, from, Observable, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 let isRefreshing = false;
@@ -30,21 +30,24 @@ function addToken(request: HttpRequest<unknown>, authService: AuthService): Http
 }
 
 function handle401Error(request: HttpRequest<unknown>, next: HttpHandlerFn, authService: AuthService): Observable<HttpEvent<unknown>> {
-  if (!isRefreshing) {
-    isRefreshing = true;
-
-    return authService.refreshToken().pipe(
+  if (!authService.refreshTokenInProgress) {
+    authService.refreshTokenInProgress = true;
+    
+    return from(authService.refreshToken()).pipe(
       switchMap(() => {
-        isRefreshing = false;
+        authService.refreshTokenInProgress = false;
         return next(addToken(request, authService));
       }),
-      catchError((error) => {
-        isRefreshing = false;
+      catchError((refreshError) => {
+        authService.refreshTokenInProgress = false;
         authService.logout();
-        return throwError(() => error);
+        return throwError(() => refreshError);
       })
     );
+  } else {
+    // Se il refresh è già in corso, aspetta e poi ritenta
+    return authService.tokenRefreshed$.pipe(
+      switchMap(() => next(addToken(request, authService)))
+    );
   }
-
-  return next(request);
 }

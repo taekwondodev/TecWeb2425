@@ -8,18 +8,32 @@
 
   <div class="content-layout">
     <aside class="filters-sidebar">
-      <app-search-filter (filterChange)="handleFilterChange($event)"></app-search-filter>
+      <app-search-filter (filterChange)="onFilterChange($event)"></app-search-filter>
     </aside>
 
     <main class="memes-grid">
-      <h2 class="section-title">Scopri i Meme</h2>
+      <h2 class="section-title">
+        {{ searchQuery ? `Risultati per: "${searchQuery}"` : 'Scopri i Meme' }}
+      </h2>
 
       <div *ngIf="isLoading" class="loading-indicator">
         <p>Caricamento meme in corso...</p>
       </div>
 
       <div *ngIf="!isLoading && (!memeResponse || memeResponse.memes.length === 0)" class="no-memes-message">
-        <p>Nessun meme trovato con i filtri selezionati.</p>
+        <ng-container *ngIf="searchQuery || activeFilters.tags.length > 0; else noMemesDefault">
+          <h3>Nessun risultato trovato</h3>
+          <p>Non abbiamo trovato meme corrispondenti alla tua ricerca.</p>
+          <p>Suggerimenti:</p>
+          <ul>
+            <li>Verifica che tutti i tag siano scritti correttamente</li>
+            <li>Prova con tag diversi</li>
+            <li>Prova con termini più generici</li>
+          </ul>
+        </ng-container>
+        <ng-template #noMemesDefault>
+          <p>Nessun meme disponibile al momento.</p>
+        </ng-template>
       </div>
 
       <div class="memes-grid-container">

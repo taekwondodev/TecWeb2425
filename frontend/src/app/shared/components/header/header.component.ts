@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, RouterModule, FormsModule],
   styleUrls: ['./header.component.scss']
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent{
   isMenuOpen = false;
   searchQuery = '';
   isLoggedIn = false;
@@ -18,7 +18,7 @@ export class HeaderComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  ngOnInit(): void {
+  constructor() {
     this.isLoggedIn = this.authService.isLoggedIn();
     
     this.authService.authStatus$.subscribe(status => {
@@ -37,8 +37,12 @@ export class HeaderComponent implements OnInit {
 
   search(): void {
     if (this.searchQuery.trim()) {
-      this.router.navigate(['/search'], {
-        queryParams: { query: this.searchQuery }
+      this.router.navigate(['/'], {
+        queryParams: { 
+          query: this.searchQuery,
+          page: 1 // Reset alla prima pagina
+        },
+        queryParamsHandling: 'merge'
       });
       this.searchQuery = '';
     }

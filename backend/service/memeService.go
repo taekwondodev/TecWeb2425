@@ -26,7 +26,7 @@ type MemeService interface {
 	GetDailyMeme() (*models.Meme, error)
 	GetMemeById(id int) (*models.Meme, error)
 	UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, username string) (*dto.MemeUploadResponse, error)
-	VoteMeme(ctx context.Context, id int, req dto.VoteRequest) (*dto.MemeUploadResponse, error)
+	VoteMeme(ctx context.Context, id int, req dto.VoteRequest) (*dto.VoteResponse, error)
 }
 
 type MemeServiceImpl struct {
@@ -130,17 +130,19 @@ func (s *MemeServiceImpl) UploadMeme(file multipart.File, header *multipart.File
 		return nil, err
 	}
 
-	if err := s.repo.SaveMeme(filePath, tag, username); err != nil {
+	id, err := s.repo.SaveMeme(filePath, tag, username)
+	if err != nil {
 		os.Remove(filePath)
 		return nil, customerrors.ErrInternalServer
 	}
 
 	return &dto.MemeUploadResponse{
 		Message: "Meme uploaded successfully",
+		MemeID:  id,
 	}, nil
 }
 
-func (s *MemeServiceImpl) VoteMeme(ctx context.Context, id int, req dto.VoteRequest) (*dto.MemeUploadResponse, error) {
+func (s *MemeServiceImpl) VoteMeme(ctx context.Context, id int, req dto.VoteRequest) (*dto.VoteResponse, error) {
 	if err := req.Validate(); err != nil {
 		return nil, customerrors.ErrBadRequest
 	}
@@ -172,7 +174,7 @@ func (s *MemeServiceImpl) VoteMeme(ctx context.Context, id int, req dto.VoteRequ
 		return nil, err
 	}
 
-	return &dto.MemeUploadResponse{
+	return &dto.VoteResponse{
 		Message: "Vote operation completed successfully!",
 		Removed: removed,
 	}, tx.Commit()

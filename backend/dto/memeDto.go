@@ -12,7 +12,7 @@ type MemeFilterOptions struct {
 
 type MemeUploadResponse struct {
 	Message string `json:"message"`
-	Removed bool   `json:"removed,omitzero"`
+	MemeID  int    `json:"memeId"`
 }
 
 type GetMemeResponse struct {

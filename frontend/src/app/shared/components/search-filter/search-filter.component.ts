@@ -10,14 +10,10 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
   styleUrls: ['./search-filter.component.scss']
 })
 export class SearchFilterComponent {
-  @Output() filterChange = new EventEmitter<{
-    sortBy: string;
-    tags?: string;
-    dateFrom?: string;
-    dateTo?: string;
-  }>();
+  @Output() filterChange = new EventEmitter<any>();
 
   filterForm: FormGroup;
+  searchQuery = '';
 
   sortOptions = [
     { value: 'newest', label: 'Più recenti' },
@@ -40,12 +36,17 @@ export class SearchFilterComponent {
   applyFilters(): void {
     const formValue = this.filterForm.value;
     
-    // Converte le date in formato ISO (YYYY-MM-DD) se presenti
     const filters = {
       sortBy: formValue.sortBy,
-      tags: formValue.tags,
-      dateFrom: formValue.dateFrom ? new Date(formValue.dateFrom).toISOString().split('T')[0] : '',
-      dateTo: formValue.dateTo ? new Date(formValue.dateTo).toISOString().split('T')[0] : ''
+      tags: formValue.tags 
+        ? formValue.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t)
+        : [],
+      dateFrom: formValue.dateFrom 
+        ? new Date(formValue.dateFrom).toISOString().split('T')[0] 
+        : '',
+      dateTo: formValue.dateTo 
+        ? new Date(formValue.dateTo).toISOString().split('T')[0] 
+        : ''
     };
 
     this.filterChange.emit(filters);

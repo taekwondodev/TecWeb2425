@@ -10,7 +10,7 @@ import (
 )
 
 type MemeRepository interface {
-	SaveMeme(filePath string, tag string, username string) error
+	SaveMeme(filePath string, tag string, username string) (int, error)
 	CountsMeme(ctx context.Context, filterDateFrom, filterDateTo string, filterTags []string) (int, error)
 	GetMemes(ctx context.Context, page int, pageSize int, sortBy string, filterDateFrom, filterDateTo string, filterTags []string) ([]models.Meme, error)
 	GetRandomMeme() (*models.Meme, error)
@@ -26,17 +26,22 @@ func NewMemeRepository(db *sql.DB) MemeRepository {
 	return &MemeRepositoryImpl{db: db}
 }
 
-func (m *MemeRepositoryImpl) SaveMeme(filePath string, tag string, username string) error {
-	query := "INSERT INTO memes (tag, image_path, created_by) VALUES ($1, $2, $3)"
+func (m *MemeRepositoryImpl) SaveMeme(filePath string, tag string, username string) (int, error) {
+	query := "INSERT INTO memes (tag, image_path, created_by) VALUES ($1, $2, $3) RETURNING id"
 
-	_, err := m.db.Exec(
+	var id int
+	err := m.db.QueryRow(
 		query,
 		tag,
 		filePath,
 		username,
-	)
+	).Scan(&id)
 
-	return err
+	if err != nil {
+		return -1, err
+	}
+
+	return id, nil
 }
 
 func (m *MemeRepositoryImpl) CountsMeme(ctx context.Context, filterDateFrom, filterDateTo string, filterTags []string) (int, error) {

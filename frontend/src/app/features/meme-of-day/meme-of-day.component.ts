@@ -1,55 +1,38 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MemeService } from '../../core/services/meme.service';
 import { Meme } from '../../shared/models/meme.model';
+import { CommonModule } from '@angular/common';
+import { UpvoteDownvoteComponent } from "../../shared/components/upvote-downvote/upvote-downvote.component";
+import { CommentSectionComponent } from "../../shared/components/comment-section/comment-section.component";
 
 @Component({
   selector: 'app-meme-of-day',
   templateUrl: './meme-of-day.component.html',
+  standalone: true,
+  imports: [CommonModule, UpvoteDownvoteComponent, CommentSectionComponent],
   styleUrls: ['./meme-of-day.component.scss']
 })
 export class MemeOfDayComponent implements OnInit {
   memeOfDay: Meme | null = null;
   isLoading = true;
 
-  constructor(private memeService: MemeService) { }
+  private readonly memeService = inject(MemeService);
 
   ngOnInit(): void {
     this.loadMemeOfDay();
   }
 
-  loadMemeOfDay(): void {
+  async loadMemeOfDay(): Promise<void> {
     this.isLoading = true;
-    this.memeService.getMemeOfTheDay().subscribe({
-      next: (meme) => {
-        this.memeOfDay = meme;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading meme of the day:', error);
-        this.isLoading = false;
-      }
-    });
+    try {
+      this.memeOfDay = await this.memeService.getMemeOfTheDay();
+    }
+    catch(error){
+      console.error('Error loading meme of the day:', error);
+    }
+    finally {
+      this.isLoading = false;
+    }
   }
 
-  upvoteMeme(): void {
-    if (!this.memeOfDay) return;
-
-    this.memeService.upvoteMeme(this.memeOfDay.id).subscribe({
-      next: (updatedMeme) => {
-        this.memeOfDay = updatedMeme;
-      },
-      error: (error) => console.error('Error upvoting meme:', error)
-    });
-  }
-
-  downvoteMeme(): void {
-    if (!this.memeOfDay) return;
-
-    this.memeService.downvoteMeme(this.memeOfDay.id).subscribe({
-      next: (updatedMeme) => {
-        this.memeOfDay = updatedMeme;
-      },
-      error: (error) => console.error('Error downvoting meme:', error)
-    });
-  }
 }

@@ -20,10 +20,6 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'search',
-    loadComponent: () => import('./features/search-results/search-results.component').then(m => m.SearchResultsComponent)
-  },
-  {
     path: 'login',
     loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
   },

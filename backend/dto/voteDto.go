@@ -11,3 +11,8 @@ func (v *VoteRequest) Validate() error {
 	validate := validator.New()
 	return validate.Struct(v)
 }
+
+type VoteResponse struct {
+	Message string `json:"message"`
+	Removed bool   `json:"removed,omitzero"`
+}

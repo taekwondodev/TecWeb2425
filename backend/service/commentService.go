@@ -7,7 +7,7 @@ import (
 )
 
 type CommentService interface {
-	CreateComment(req dto.CreateCommentRequest, username string) (*dto.MemeUploadResponse, error)
+	CreateComment(req dto.CreateCommentRequest, username string) (*dto.VoteResponse, error)
 	GetComments(memeID int) (*dto.GetCommentResponse, error)
 }
 
@@ -19,7 +19,7 @@ func NewCommentService(repo repository.CommentRepository) CommentService {
 	return &CommentServiceImpl{repo: repo}
 }
 
-func (s *CommentServiceImpl) CreateComment(req dto.CreateCommentRequest, username string) (*dto.MemeUploadResponse, error) {
+func (s *CommentServiceImpl) CreateComment(req dto.CreateCommentRequest, username string) (*dto.VoteResponse, error) {
 	if err := req.Validate(); err != nil {
 		return nil, customerrors.ErrBadRequest
 	}
@@ -28,7 +28,7 @@ func (s *CommentServiceImpl) CreateComment(req dto.CreateCommentRequest, usernam
 		return nil, err
 	}
 
-	return &dto.MemeUploadResponse{
+	return &dto.VoteResponse{
 		Message: "Comment created successfully!",
 	}, nil
 }

@@ -10,6 +10,7 @@ export interface Meme {
 
 export interface MemeUploadResponse {
   message: string;
+  memeId: number;
 }
 
 export interface MemeFilterOptions {

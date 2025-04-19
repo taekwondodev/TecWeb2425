@@ -3,3 +3,7 @@
 Dockerfile
 .dockerignore
 .gitignore
+frontend/.angular/cache
+frontend/.vscode
+frontend/.editorconfig
+frontend/.gitignore

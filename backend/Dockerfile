@@ -1,11 +1,13 @@
 #Build del frontend
 FROM node:23.11.0-alpine AS frontend-builder
 WORKDIR /app
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
 COPY frontend/ .
-RUN npm ci && npm run build -- --prod --output-path=dist
+RUN npm run build -- --output-path=dist
 
 # Build del backend
-FROM golang:1.24.1-alpine AS go-builder
+FROM golang:1.24.2-alpine AS go-builder
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
@@ -20,7 +22,7 @@ RUN echo "nonroot:x:1000:1000:nonroot:/:" > /etc/passwd && \
 RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
 # Runtime
-FROM scratch AS runtime
+FROM alpine:3.19 AS runtime
 
 WORKDIR /app
 

@@ -21,7 +21,7 @@ func setupStaticFileServer() {
 }
 
 func getAngularDir() string {
-	dir := "./static"
+	dir := "./static/browser"
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		log.Fatalf("Angular static files not found in %s", dir)
 	}
@@ -30,14 +30,18 @@ func getAngularDir() string {
 }
 
 func handleSPARequests(w http.ResponseWriter, r *http.Request, baseDir string, fs http.Handler) {
+	log.Printf("Handling request: %s (File: %s)", r.URL.Path, filepath.Join(baseDir, r.URL.Path))
 	// Skip API routes
 	if strings.HasPrefix(r.URL.Path, "/api") {
 		return
 	}
 
-	// Gestione file fisici
 	filePath := filepath.Join(baseDir, r.URL.Path)
-	if _, err := os.Stat(filePath); err == nil && r.URL.Path != "/" {
+	if r.URL.Path == "/" {
+		filePath = filepath.Join(baseDir, "index.html")
+	}
+
+	if _, err := os.Stat(filePath); err == nil {
 		fs.ServeHTTP(w, r)
 		return
 	}

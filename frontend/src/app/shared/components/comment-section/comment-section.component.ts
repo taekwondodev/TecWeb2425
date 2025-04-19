@@ -1,25 +1,30 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, inject, Input, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Comment } from '../../models/comment.model';
-import { MemeService } from '../../../core/services/meme.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { CommonModule } from '@angular/common';
+import { CommentService } from '../../../core/services/comment.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-comment-section',
   templateUrl: './comment-section.component.html',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   styleUrls: ['./comment-section.component.scss']
 })
 export class CommentSectionComponent implements OnInit {
-  @Input() memeId!: string;
+  @Input() memeId!: number;
   comments: Comment[] = [];
   commentForm: FormGroup;
   isSubmitting = false;
+  error: string | null = null;
 
-  constructor(
-    private memeService: MemeService,
-    private authService: AuthService,
-    private fb: FormBuilder
-  ) {
+  private readonly commentService = inject(CommentService);
+  private readonly authService = inject(AuthService);
+  private readonly fb = inject(FormBuilder);
+
+  constructor() {
     this.commentForm = this.fb.group({
       content: ['', [Validators.required, Validators.maxLength(500)]]
     });
@@ -33,31 +38,35 @@ export class CommentSectionComponent implements OnInit {
     return this.authService.isLoggedIn();
   }
 
-  loadComments(): void {
-    this.memeService.getComments(this.memeId).subscribe(comments => {
-      this.comments = comments;
-    });
+  get content() { return this.commentForm.get('content'); }
+
+  async loadComments(): Promise<void> {
+    try {
+      this.comments = (await this.commentService.getComments(this.memeId)).comments;
+    } catch (error) {
+      console.error('Error loading comments:', error);
+      this.error = 'Failed to load comments';
+    }
   }
 
-  submitComment(): void {
+  async submitComment(): Promise<void> {
     if (this.commentForm.invalid || this.isSubmitting) {
       return;
     }
 
     this.isSubmitting = true;
-    const content = this.commentForm.get('content')?.value;
+    this.error = null;
 
-    this.memeService.addComment(this.memeId, content).subscribe({
-      next: (newComment) => {
-        this.comments.unshift(newComment);
-        this.commentForm.reset();
-        this.isSubmitting = false;
-      },
-      error: (error) => {
-        console.error('Error adding comment:', error);
-        this.isSubmitting = false;
-      }
-    });
+    try {
+      await this.commentService.addComment(this.memeId, this.content!.value);
+      await this.loadComments();
+      this.commentForm.reset();
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      this.error = 'Failed to add comment';
+    } finally {
+      this.isSubmitting = false;
+    }
   }
 
   formatDate(date: Date): string {

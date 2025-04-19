@@ -31,8 +31,8 @@
 
     <div *ngFor="let comment of comments" class="comment-item">
       <div class="comment-header">
-        <span class="username">{{ comment.username }}</span>
-        <span class="timestamp">{{ formatDate(comment.timestamp) }}</span>
+        <span class="username">{{ comment.createdBy }}</span>
+        <span class="timestamp">{{ formatDate(comment.createdAt) }}</span>
       </div>
       <div class="comment-content">
         {{ comment.content }}

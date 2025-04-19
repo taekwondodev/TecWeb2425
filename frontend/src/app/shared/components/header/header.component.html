@@ -18,9 +18,8 @@
         <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
         <li><a routerLink="/meme-of-day" routerLinkActive="active">Meme del giorno</a></li>
 
-        <ng-container *ngIf="currentUser; else notLoggedIn">
+        <ng-container *ngIf="isLoggedIn; else notLoggedIn">
           <li><a routerLink="/upload" routerLinkActive="active">Carica Meme</a></li>
-          <li><a routerLink="/profile" routerLinkActive="active">Profilo</a></li>
           <li><a href="javascript:void(0)" (click)="logout()">Logout</a></li>
         </ng-container>
 

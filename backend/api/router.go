@@ -10,39 +10,43 @@ var router *http.ServeMux
 
 func SetupRoutes(authController *controller.AuthController, memeController *controller.MemeController, commentController *controller.CommentController) *http.ServeMux {
 	router = http.NewServeMux()
-	setupAuthRoutes(authController)
-	setupMemeRoutes(memeController)
-	setupCommentRoutes(commentController)
+	publicAuthRoutes(authController)
+	publicMemeRoutes(memeController)
+	protectedMemeRoutes(memeController)
+	protectedCommentRoutes(commentController)
 	setupStaticFileServer()
 	return router
 }
 
-func setupAuthRoutes(authController *controller.AuthController) {
-	router.Handle("POST /api/auth/register", authMiddleware(authController.Register))
-	router.Handle("POST /api/auth/login", authMiddleware(authController.Login))
-	router.Handle("POST /api/auth/refresh", authMiddleware(authController.Refresh))
+func publicAuthRoutes(authController *controller.AuthController) {
+	router.Handle("POST /api/auth/register", publicMiddleware(authController.Register))
+	router.Handle("POST /api/auth/login", publicMiddleware(authController.Login))
+	router.Handle("POST /api/auth/refresh", publicMiddleware(authController.Refresh))
 }
 
-func setupMemeRoutes(memeController *controller.MemeController) {
-	router.Handle("GET /api/memes", memeMiddleware(memeController.GetMemes))
-	router.Handle("GET /api/memes/daily", memeMiddleware(memeController.GetDailyMeme))
-	router.Handle("GET /api/memes/id", memeMiddleware(memeController.GetMemeById))
-	router.Handle("POST /api/memes/upload", memeMiddleware(memeController.UploadMeme))
-	router.Handle("PATCH /api/memes/vote", memeMiddleware(memeController.VoteMeme))
+func publicMemeRoutes(memeController *controller.MemeController) {
+	router.Handle("GET /api/memes", publicMiddleware(memeController.GetMemes))
+	router.Handle("GET /api/memes/daily", publicMiddleware(memeController.GetDailyMeme))
+	router.Handle("GET /api/memes/id", publicMiddleware(memeController.GetMemeById))
 }
 
-func setupCommentRoutes(commentController *controller.CommentController) {
-	router.Handle("GET /api/comment", memeMiddleware(commentController.GetComments))
-	router.Handle("POST /api/comment", memeMiddleware(commentController.CreateComment))
+func protectedMemeRoutes(memeController *controller.MemeController) {
+	router.Handle("POST /api/memes/upload", protectedMiddleware(memeController.UploadMeme))
+	router.Handle("PATCH /api/memes/vote", protectedMiddleware(memeController.VoteMeme))
 }
 
-func authMiddleware(h middleware.HandlerFunc) http.HandlerFunc {
+func protectedCommentRoutes(commentController *controller.CommentController) {
+	router.Handle("GET /api/comment", protectedMiddleware(commentController.GetComments))
+	router.Handle("POST /api/comment", protectedMiddleware(commentController.CreateComment))
+}
+
+func publicMiddleware(h middleware.HandlerFunc) http.HandlerFunc {
 	return middleware.ErrorHandler(
 		middleware.LoggingMiddleware(h),
 	)
 }
 
-func memeMiddleware(h middleware.HandlerFunc) http.HandlerFunc {
+func protectedMiddleware(h middleware.HandlerFunc) http.HandlerFunc {
 	return middleware.ErrorHandler(
 		middleware.LoggingMiddleware(
 			middleware.AuthMiddleware(h),

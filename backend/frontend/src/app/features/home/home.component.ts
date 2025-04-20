@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MemeService } from '../../core/services/meme.service';
 import { GetMemeResponse } from '../../shared/models/meme.model';
 import { CommonModule } from '@angular/common';
@@ -6,6 +6,7 @@ import { SearchFilterComponent } from "../../shared/components/search-filter/sea
 import { MemeCardComponent } from "../../shared/components/meme-card/meme-card.component";
 import { PaginatorComponent } from "../../shared/components/paginator/paginator.component";
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -14,7 +15,7 @@ import { ActivatedRoute, Router } from '@angular/router';
   imports: [CommonModule, SearchFilterComponent, MemeCardComponent, PaginatorComponent],
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   memeResponse: GetMemeResponse | null = null;
   currentPage = 1;
   pageSize = 10;
@@ -31,22 +32,30 @@ export class HomeComponent implements OnInit {
   private readonly memeService = inject(MemeService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly destroy$ = new Subject<void>();
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      this.searchQuery = params['query'] ?? '';
-      this.currentPage = parseInt(params['page']) || 1;
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        this.searchQuery = params['query'] ?? '';
+        this.currentPage = parseInt(params['page']) || 1;
 
-      // Aggiorna i filtri dai query params
-      this.activeFilters = {
-        sortBy: params['sortBy'] ?? 'newest',
-        tags: params['tags'] ? params['tags'].split(',') : [],
-        dateFrom: params['dateFrom'] ?? '',
-        dateTo: params['dateTo'] ?? ''
-      };
+        // Aggiorna i filtri dai query params
+        this.activeFilters = {
+          sortBy: params['sortBy'] ?? 'newest',
+          tags: params['tags'] ? params['tags'].split(',') : [],
+          dateFrom: params['dateFrom'] ?? '',
+          dateTo: params['dateTo'] ?? ''
+        };
 
-      this.loadMemes();
-    });
+        this.loadMemes();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async loadMemes(): Promise<void> {

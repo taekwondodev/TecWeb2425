@@ -79,8 +79,8 @@ export class AuthService {
   }
 
   private clearTokens(): void {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     this.accessTokenSubject.next(null);
     this.authStatus.next(false);
   }

@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MemeService } from '../../core/services/meme.service';
 import { Meme } from '../../shared/models/meme.model';
 import { CommonModule } from '@angular/common';
 import { CommentSectionComponent } from "../../shared/components/comment-section/comment-section.component";
 import { UpvoteDownvoteComponent } from "../../shared/components/upvote-downvote/upvote-downvote.component";
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-meme-details',
@@ -13,7 +14,7 @@ import { UpvoteDownvoteComponent } from "../../shared/components/upvote-downvote
   imports: [CommonModule, CommentSectionComponent, UpvoteDownvoteComponent, RouterModule],
   styleUrls: ['./meme-details.component.css']
 })
-export class MemeDetailsComponent {
+export class MemeDetailsComponent implements OnDestroy {
   memeId: number = 0;
   meme: Meme | null = null;
   isLoading = true;
@@ -21,12 +22,20 @@ export class MemeDetailsComponent {
 
   private readonly route = inject(ActivatedRoute);
   private readonly memeService = inject(MemeService);
+  private readonly destroy$ = new Subject<void>();
 
   constructor() {
-    this.route.params.subscribe(params => {
-      this.memeId = params['memeId'];
-      this.loadMeme();
-    });
+    this.route.params
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        this.memeId = params['memeId'];
+        this.loadMeme();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async loadMeme(): Promise<void> {

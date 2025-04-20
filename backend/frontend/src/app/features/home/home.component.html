@@ -20,16 +20,9 @@
         <p>Caricamento meme in corso...</p>
       </div>
 
-      <div *ngIf="!isLoading && (!memeResponse || memeResponse.memes.length === 0)" class="no-memes-message">
+      <div *ngIf="!isLoading && (!memeResponse || memeResponse.memes === null || memeResponse.memes.length === 0)" class="no-memes-message">
         <ng-container *ngIf="searchQuery || activeFilters.tags.length > 0; else noMemesDefault">
           <h3>Nessun risultato trovato</h3>
-          <p>Non abbiamo trovato meme corrispondenti alla tua ricerca.</p>
-          <p>Suggerimenti:</p>
-          <ul>
-            <li>Verifica che tutti i tag siano scritti correttamente</li>
-            <li>Prova con tag diversi</li>
-            <li>Prova con termini più generici</li>
-          </ul>
         </ng-container>
         <ng-template #noMemesDefault>
           <p>Nessun meme disponibile al momento.</p>

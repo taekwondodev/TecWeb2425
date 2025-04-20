@@ -36,7 +36,7 @@ export class HomeComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       this.searchQuery = params['query'] ?? '';
       this.currentPage = parseInt(params['page']) || 1;
-      
+
       // Aggiorna i filtri dai query params
       this.activeFilters = {
         sortBy: params['sortBy'] ?? 'newest',
@@ -49,16 +49,21 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  async loadMemes(): Promise<void>{
+  async loadMemes(): Promise<void> {
     this.isLoading = true;
-    this.activeFilters.tags.unshift(this.searchQuery);
+    // perchè se modifico direttamente activeFilters loop infinito
+    const tagsWithQuery = [...this.activeFilters.tags];
+    if (this.searchQuery) {
+      tagsWithQuery.unshift(this.searchQuery);
+    }
+
     try {
       this.memeResponse = await this.memeService.getMemes(
         this.currentPage,
         this.pageSize,
         this.activeFilters.sortBy,
         {
-          tags: this.activeFilters.tags,
+          tags: tagsWithQuery,
           dateFrom: this.activeFilters.dateFrom,
           dateTo: this.activeFilters.dateTo
         }
@@ -72,7 +77,7 @@ export class HomeComponent implements OnInit {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.loadMemes();
+    this.updateUrl();
   }
 
   onFilterChange(filters: any): void {

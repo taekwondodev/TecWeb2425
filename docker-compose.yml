@@ -6,6 +6,8 @@ services:
     container_name: mememuseum
     env_file:
       - .env
+    ports:
+      - "80:80"
     volumes:
       - image_data:/data/uploads
     depends_on:

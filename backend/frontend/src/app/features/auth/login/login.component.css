@@ -42,3 +42,22 @@ h2 {
     padding: 20px;
   }
 }
+
+.auto-filled {
+  background-color: #fff3e0;
+  border-color: #ff9800;
+  box-shadow: 0 0 0 0.2rem rgba(255, 152, 0, 0.25);
+  animation: pulse-orange 1.5s ease-in-out;
+}
+
+@keyframes pulse-orange {
+  0% {
+    background-color: #fff3e0;
+  }
+  50% {
+    background-color: #ffe0b2;
+  }
+  100% {
+    background-color: #fff3e0;
+  }
+}

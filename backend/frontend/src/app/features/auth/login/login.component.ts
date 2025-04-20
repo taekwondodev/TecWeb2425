@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { LoginRequest, NavigationStatus } from '../../../shared/models/auth.model';
+import { LoginRequest } from '../../../shared/models/auth.model';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -20,11 +20,12 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   loading = false;
   submitted = false;
+  autofilled = false;
   error = '';
   returnUrl: string = '/';
 
   ngOnInit(): void {
-    if (this.authService.authStatus$) {
+    if (this.authService.isLoggedIn()) {
       this.router.navigate(['/']);
       return;
     }
@@ -34,9 +35,13 @@ export class LoginComponent implements OnInit {
       password: ['', Validators.required]
     });
 
-    const navigationState = this.router.getCurrentNavigation()?.extras.state as NavigationStatus;
-    if (navigationState?.username) {
-      this.loginForm.patchValue({ username: navigationState.username });
+    const state = history.state;
+    if (state?.username && state?.password) {
+      this.loginForm.patchValue({
+        username: state.username,
+        password: state.password
+      });
+      this.autofilled = true;
     }
   }
 
@@ -59,7 +64,7 @@ export class LoginComponent implements OnInit {
         username: this.username!.value,
         password: this.password!.value
       };
-      
+
       await this.authService.login(loginRequest);
       await this.router.navigate([this.returnUrl]);
     } catch (error: any) {

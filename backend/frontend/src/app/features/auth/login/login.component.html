@@ -9,8 +9,10 @@
 
       <div class="form-group mb-3">
         <label for="username">Username</label>
-        <input type="text" formControlName="username" class="form-control"
-          [ngClass]="{ 'is-invalid': submitted && username!.errors }" />
+        <input type="text" formControlName="username" class="form-control" [ngClass]="{ 
+            'is-invalid': submitted && username!.errors,
+            'auto-filled': autofilled
+           }" />
         <div *ngIf="submitted && username!.errors" class="invalid-feedback">
           <div *ngIf="username!.errors['required']">Username richiesto</div>
         </div>
@@ -18,8 +20,10 @@
 
       <div class="form-group mb-3">
         <label for="password">Password</label>
-        <input type="password" formControlName="password" class="form-control"
-          [ngClass]="{ 'is-invalid': submitted && password!.errors }" />
+        <input type="password" formControlName="password" class="form-control" [ngClass]="{ 
+            'is-invalid': submitted && password!.errors,
+            'auto-filled': autofilled
+            }" />
         <div *ngIf="submitted && password!.errors" class="invalid-feedback">
           <div *ngIf="password!.errors['required']">Password richiesta</div>
         </div>
@@ -33,7 +37,7 @@
       </div>
 
       <div class="text-center mt-3">
-        <p>Non hai un account? <a routerLink="/auth/register">Registrati</a></p>
+        <p>Non hai un account? <a routerLink="/register">Registrati</a></p>
       </div>
     </form>
   </div>

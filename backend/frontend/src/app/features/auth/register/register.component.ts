@@ -53,7 +53,12 @@ export class RegisterComponent {
       await this.authService.register(registerRequest);
       await this.router.navigate(
         ['/login'],
-        { state: { username: this.username!.value } }
+        {
+          state: {
+            username: this.username!.value,
+            password: this.password!.value,
+          }
+        }
       );
     } catch (error: any) {
       this.error = error.error?.message ?? 'Registrazione fallita';

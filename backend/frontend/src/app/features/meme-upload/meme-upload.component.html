@@ -8,6 +8,7 @@
         <div class="image-upload-area" [class.has-preview]="imagePreview">
           <div class="image-preview" *ngIf="imagePreview">
             <img [src]="imagePreview" alt="Anteprima">
+            <br/>
             <button type="button" class="change-image-btn" (click)="fileInput.click()">
               Cambia immagine
             </button>

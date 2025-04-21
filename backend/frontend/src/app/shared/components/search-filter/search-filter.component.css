@@ -46,6 +46,10 @@
   margin-top: 1rem;
 }
 
+.filter-actions button {
+  flex: 1;
+}
+
 .btn {
   padding: 0.5rem 1rem;
   border: none;
@@ -53,22 +57,26 @@
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.2s;
+  width: 100%;  /* questi due potrebbero non avere senso */
+  font-weight: 500;
+}
+
+.apply-btn, .reset-btn {
+  color: white;
 }
 
 .apply-btn {
   background-color: #4CAF50;
-  color: white;
+}
 
-  &:hover {
-    background-color: #45a049;
-  }
+.apply-btn:hover {
+  background-color: #45a049;
 }
 
 .reset-btn {
   background-color: #f44336;
-  color: white;
+}
 
-  &:hover {
-    background-color: #d32f2f;
-  }
+.reset-btn:hover {
+  background-color: #d32f2f;
 }

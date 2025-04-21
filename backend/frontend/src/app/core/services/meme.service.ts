@@ -53,9 +53,12 @@ export class MemeService {
     formData.append('image', image, image.name);
     formData.append('tag', tag);
 
-    return firstValueFrom(
+    const response = firstValueFrom(
       this.http.post<MemeUploadResponse>(`${this.API_URL}/upload`, formData)
     );
+
+    console.log('Response from uploadMeme:', response);
+    return response;
   }
 
   async voteMeme(memeId: number, voteValue: number): Promise<VoteResponse> {

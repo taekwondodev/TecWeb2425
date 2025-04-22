@@ -14,7 +14,7 @@ func setupStaticFileServer() {
 	fs := http.FileServer(http.Dir(dir))
 
 	uploadsFs := http.StripPrefix("/data/uploads/", http.FileServer(http.Dir(config.UploadDir)))
-	router.Handle("GET /data/uploads/", uploadsFs)
+	router.Handle("GET /data/uploads/{file}", uploadsFs)
 
 	router.Handle("GET /", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleSPARequests(w, r, dir, fs)

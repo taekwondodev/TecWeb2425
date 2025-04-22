@@ -7,7 +7,6 @@ import (
 	"backend/middleware"
 	"backend/service"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -57,10 +56,6 @@ func (c *MemeController) GetMemes(w http.ResponseWriter, r *http.Request) error 
 		return err
 	}
 
-	for i := range res.Memes {
-		res.Memes[i].ImagePath = c.buildImageUrl(r, res.Memes[i].ImagePath)
-	}
-
 	return c.respond(w, http.StatusOK, res)
 }
 
@@ -69,8 +64,6 @@ func (c *MemeController) GetDailyMeme(w http.ResponseWriter, r *http.Request) er
 	if err != nil {
 		return err
 	}
-
-	res.ImagePath = c.buildImageUrl(r, res.ImagePath)
 
 	return c.respond(w, http.StatusOK, res)
 }
@@ -85,8 +78,6 @@ func (c *MemeController) GetMemeById(w http.ResponseWriter, r *http.Request) err
 	if err != nil {
 		return err
 	}
-
-	res.ImagePath = c.buildImageUrl(r, res.ImagePath)
 
 	return c.respond(w, http.StatusOK, res)
 }
@@ -140,8 +131,4 @@ func (c *MemeController) respond(w http.ResponseWriter, status int, data any) er
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	return json.NewEncoder(w).Encode(data)
-}
-
-func (c *MemeController) buildImageUrl(r *http.Request, imagePath string) string {
-	return fmt.Sprintf("%s://%s/%s", "http", r.Host, imagePath)
 }

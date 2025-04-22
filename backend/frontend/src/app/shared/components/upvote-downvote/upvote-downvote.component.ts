@@ -16,6 +16,8 @@ export class UpvoteDownvoteComponent {
   @Input() upvotes: number = 0;
   @Input() downvotes: number = 0;
   @Input() userVote: 'up' | 'down' | null = null;
+  disabledUp: boolean = false;
+  disabledDown: boolean = false;
 
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -46,7 +48,7 @@ export class UpvoteDownvoteComponent {
     }
 
     try {
-      const response = await this.memeService.voteMeme(this.memeId, 1);
+      const response = await this.memeService.voteMeme(this.memeId, -1);
       this.updateDownVotes(response);
     } catch (error) {
       console.error('Error upvoting:', error);
@@ -56,18 +58,22 @@ export class UpvoteDownvoteComponent {
   private updateUpVotes(response: VoteResponse): void {
     if (response.removed) {
       this.upvotes--;
+      this.disabledDown = false;
     }
     else {
       this.upvotes++;
+      this.disabledDown = true;
     }
   }
 
   private updateDownVotes(response: VoteResponse): void {
     if (response.removed) {
       this.downvotes--;
+      this.disabledUp = false;
     }
     else {
       this.downvotes++;
+      this.disabledUp = true;
     }
   }
 

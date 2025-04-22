@@ -19,7 +19,7 @@
       <button type="submit" [disabled]="isSubmitting" class="submit-btn">
         {{ isSubmitting ? 'Invio in corso...' : 'Pubblica' }}
       </button>
-      <div *ngIf="commentForm.invalid" class="error-message"> (Compila correttamente il campo)</div>
+      <div *ngIf="commentError" class="error-message"> (Compila correttamente il campo)</div>
     </form>
   </div>
 

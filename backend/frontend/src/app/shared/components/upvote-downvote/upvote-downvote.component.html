@@ -1,5 +1,5 @@
 <div class="vote-container">
-  <button class="vote-btn upvote" [class.active]="userVote === 'up'" (click)="upvote()" [disabled]="!isLoggedIn">
+  <button class="vote-btn upvote" [class.active]="userVote === 'up'" (click)="upvote()" [disabled]="!isLoggedIn || disabledUp">
     <i class="fas fa-arrow-up"></i>
     <span class="vote-count">{{ upvotes }}</span>
   </button>
@@ -8,7 +8,7 @@
     {{ upvotes - downvotes }}
   </div>
 
-  <button class="vote-btn downvote" [class.active]="userVote === 'down'" (click)="downvote()" [disabled]="!isLoggedIn">
+  <button class="vote-btn downvote" [class.active]="userVote === 'down'" (click)="downvote()" [disabled]="!isLoggedIn || disabledDown">
     <i class="fas fa-arrow-down"></i>
     <span class="vote-count">{{ downvotes }}</span>
   </button>

@@ -28,6 +28,10 @@ func (v *voteRepository) GetVote(ctx context.Context, userID int, memeID int) (i
 		userID, memeID,
 	).Scan(&vote)
 
+	if err == sql.ErrNoRows {
+		return 0, nil
+	}
+
 	return vote, err
 }
 

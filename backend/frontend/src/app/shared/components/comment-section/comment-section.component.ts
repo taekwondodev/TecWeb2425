@@ -18,6 +18,7 @@ export class CommentSectionComponent implements OnInit {
   comments: Comment[] = [];
   commentForm: FormGroup;
   isSubmitting = false;
+  commentError = false;
   error: string | null = null;
 
   private readonly commentService = inject(CommentService);
@@ -51,6 +52,7 @@ export class CommentSectionComponent implements OnInit {
 
   async submitComment(): Promise<void> {
     if (this.commentForm.invalid || this.isSubmitting) {
+      this.commentError = true;
       return;
     }
 

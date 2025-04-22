@@ -25,6 +25,7 @@ var (
 	ErrHttpMethodNotAllowed  = &Error{Code: 405, Message: "http method not allowed"}
 	ErrMediaTypeNotAllowed   = &Error{Code: 415, Message: "media type not allowed"}
 	ErrBadRequest            = &Error{Code: 400, Message: "bad request"}
+	ErrInvalidMemeID         = &Error{Code: 400, Message: "invalid meme ID"}
 	ErrInternalServer        = &Error{Code: 500, Message: "internal server error"}
 	ErrDbUnreacheable        = &Error{Code: 503, Message: "database unreachable"}
 	ErrDbSSLHandshakeFailed  = &Error{Code: 502, Message: "database SSL handshake failed"}

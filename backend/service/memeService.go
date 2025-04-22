@@ -104,6 +104,10 @@ func (s *MemeServiceImpl) GetDailyMeme() (*models.Meme, error) {
 }
 
 func (s *MemeServiceImpl) GetMemeById(id int) (*models.Meme, error) {
+	if id <= 0 {
+		return nil, customerrors.ErrInvalidMemeID
+	}
+
 	meme, err := s.repo.GetMemeById(id)
 	if err != nil {
 		return nil, err

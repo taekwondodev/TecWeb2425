@@ -76,7 +76,7 @@ func (c *MemeController) GetDailyMeme(w http.ResponseWriter, r *http.Request) er
 }
 
 func (c *MemeController) GetMemeById(w http.ResponseWriter, r *http.Request) error {
-	memeId, err := strconv.Atoi(r.URL.Query().Get("memeId"))
+	memeId, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil || memeId < 1 {
 		return customerrors.ErrBadRequest
 	}

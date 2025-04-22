@@ -42,10 +42,8 @@ export class MemeService {
     return firstValueFrom(this.http.get<Meme>(`${this.API_URL}/daily`));
   }
 
-  async getMemeById(memeId: number): Promise<Meme> {
-    return firstValueFrom(this.http.get<Meme>(`${this.API_URL}/id`, 
-      { params: { memeId: memeId.toString() } }
-    ));
+  async getMemeById(id: number): Promise<Meme> {
+    return firstValueFrom(this.http.get<Meme>(`${this.API_URL}/${id}`));
   }
 
   async uploadMeme(image: File, tag: string): Promise<MemeUploadResponse> {

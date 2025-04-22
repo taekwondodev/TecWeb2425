@@ -47,7 +47,6 @@ button {
   cursor: pointer;
 }
 
-/* Titoli */
 h1,
 h2,
 h3,
@@ -59,7 +58,6 @@ h6 {
   line-height: 1.2;
 }
 
-/* Card styles */
 .card {
   background-color: #fff;
   border-radius: 8px;
@@ -73,7 +71,6 @@ h6 {
   }
 }
 
-/* Form styles */
 .form-control {
   display: block;
   width: 100%;
@@ -152,7 +149,6 @@ label {
   }
 }
 
-/* Helpers */
 .text-center {
   text-align: center;
 }
@@ -236,7 +232,6 @@ label {
   }
 }
 
-/* Alert styles */
 .alert {
   position: relative;
   padding: 0.75rem 1.25rem;
@@ -269,7 +264,6 @@ label {
   }
 }
 
-/* Validation feedback */
 .invalid-feedback {
   display: block;
   width: 100%;
@@ -287,14 +281,12 @@ label {
   }
 }
 
-/* Main content area */
 .main-content {
   padding: 2rem 0;
   min-height: calc(100vh - 140px);
   /* Header + Footer height */
 }
 
-/* Loading spinner */
 .spinner-border {
   display: inline-block;
   width: 1rem;

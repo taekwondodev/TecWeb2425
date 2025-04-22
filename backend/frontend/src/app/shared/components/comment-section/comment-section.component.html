@@ -5,7 +5,9 @@
     <form [formGroup]="commentForm" (ngSubmit)="submitComment()">
       <div class="form-group">
         <textarea formControlName="content" placeholder="Scrivi un commento..." rows="3"
-          [class.is-invalid]="commentForm.get('content')?.invalid && commentForm.get('content')?.touched"></textarea>
+          (input)="commentForm.get('content')?.markAsTouched()"
+          [class.is-invalid]="commentForm.get('content')?.invalid && commentForm.get('content')?.touched"
+          ></textarea>
         <div *ngIf="commentForm.get('content')?.hasError('required') && commentForm.get('content')?.touched"
           class="error-message">
           Il commento non può essere vuoto.
@@ -14,9 +16,10 @@
           Il commento non può superare i 500 caratteri.
         </div>
       </div>
-      <button type="submit" [disabled]="commentForm.invalid || isSubmitting" class="submit-btn">
+      <button type="submit" [disabled]="isSubmitting" class="submit-btn">
         {{ isSubmitting ? 'Invio in corso...' : 'Pubblica' }}
       </button>
+      <div *ngIf="commentForm.invalid" class="error-message"> (Compila correttamente il campo)</div>
     </form>
   </div>
 

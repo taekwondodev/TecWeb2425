@@ -23,7 +23,7 @@
         <span class="upload-date">Caricato il {{ memeOfDay.createdAt | date:'dd/MM/yyyy' }}</span>
       </div>
 
-      <div class="voting-section">
+      <div class="vote-actions">
         <app-upvote-downvote [memeId]="memeOfDay.id" [upvotes]="memeOfDay.upvotes" [downvotes]="memeOfDay.downvotes"
         ></app-upvote-downvote>
       </div>

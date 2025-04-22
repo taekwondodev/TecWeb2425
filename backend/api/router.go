@@ -12,6 +12,7 @@ func SetupRoutes(authController *controller.AuthController, memeController *cont
 	router = http.NewServeMux()
 	publicAuthRoutes(authController)
 	publicMemeRoutes(memeController)
+	publicCommentRoutes(commentController)
 	protectedMemeRoutes(memeController)
 	protectedCommentRoutes(commentController)
 	setupStaticFileServer()
@@ -35,8 +36,11 @@ func protectedMemeRoutes(memeController *controller.MemeController) {
 	router.Handle("PATCH /api/memes/vote", protectedMiddleware(memeController.VoteMeme))
 }
 
+func publicCommentRoutes(commentController *controller.CommentController) {
+	router.Handle("GET /api/comment", publicMiddleware(commentController.GetComments))
+}
+
 func protectedCommentRoutes(commentController *controller.CommentController) {
-	router.Handle("GET /api/comment", protectedMiddleware(commentController.GetComments))
 	router.Handle("POST /api/comment", protectedMiddleware(commentController.CreateComment))
 }
 

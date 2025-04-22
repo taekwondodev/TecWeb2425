@@ -26,14 +26,14 @@ func NewMemeRepository(db *sql.DB) MemeRepository {
 	return &MemeRepositoryImpl{db: db}
 }
 
-func (m *MemeRepositoryImpl) SaveMeme(filePath string, tag string, username string) (int, error) {
+func (m *MemeRepositoryImpl) SaveMeme(fileName string, tag string, username string) (int, error) {
 	query := "INSERT INTO memes (tag, image_path, created_by) VALUES ($1, $2, $3) RETURNING id"
 
 	var id int
 	err := m.db.QueryRow(
 		query,
 		tag,
-		filePath,
+		fileName,
 		username,
 	).Scan(&id)
 

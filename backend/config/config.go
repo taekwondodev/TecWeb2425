@@ -36,6 +36,6 @@ func LoadEnv() {
 
 	UploadDir = os.Getenv("UPLOAD_DIR")
 	if UploadDir == "" {
-		UploadDir = "./uploads"
+		UploadDir = "/data/uploads"
 	}
 }

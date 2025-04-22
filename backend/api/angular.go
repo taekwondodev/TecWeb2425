@@ -1,6 +1,7 @@
 package api
 
 import (
+	"backend/config"
 	"log"
 	"net/http"
 	"os"
@@ -12,8 +13,8 @@ func setupStaticFileServer() {
 	dir := getAngularDir()
 	fs := http.FileServer(http.Dir(dir))
 
-	assetsFs := http.StripPrefix("/assets/", http.FileServer(http.Dir(filepath.Join(dir, "assets"))))
-	router.Handle("GET /assets/", assetsFs)
+	uploadsFs := http.StripPrefix("/data/uploads/", http.FileServer(http.Dir(config.UploadDir)))
+	router.Handle("GET /data/uploads/", uploadsFs)
 
 	router.Handle("GET /", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleSPARequests(w, r, dir, fs)

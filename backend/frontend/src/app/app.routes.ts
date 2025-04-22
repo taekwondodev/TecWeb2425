@@ -11,7 +11,7 @@ export const routes: Routes = [
     loadComponent: () => import('./features/meme-of-day/meme-of-day.component').then(m => m.MemeOfDayComponent)
   },
   {
-    path: 'meme/:id',
+    path: 'meme/:memeId',
     loadComponent: () => import('./features/meme-details/meme-details.component').then(m => m.MemeDetailsComponent)
   },
   {

@@ -1,6 +1,6 @@
 <div class="meme-card">
   <div class="meme-image" (click)="viewMeme()">
-    <img [src]="meme.imagePath" [alt]="meme.tag">
+    <img [src]="'/data/uploads/' + meme.imagePath" [alt]="meme.tag">
   </div>
 
   <div class="meme-info">

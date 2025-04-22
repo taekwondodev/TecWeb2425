@@ -134,7 +134,7 @@ func (s *MemeServiceImpl) UploadMeme(file multipart.File, header *multipart.File
 		return nil, err
 	}
 
-	id, err := s.repo.SaveMeme(filePath, tag, username)
+	id, err := s.repo.SaveMeme(fileName, tag, username)
 	if err != nil {
 		os.Remove(filePath)
 		return nil, customerrors.ErrInternalServer

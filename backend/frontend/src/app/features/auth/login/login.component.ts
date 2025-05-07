@@ -69,7 +69,7 @@ export class LoginComponent implements OnInit {
 
       await this.authService.login(loginRequest);
       await this.router.navigate([this.returnUrl]);
-      this.flashService.showMessage('Login avvenuto con successo!');
+      this.flashService.showMessage('Login avvenuto con successo!', 'login');
     } catch (error: any) {
       this.error = error.error?.message ?? 'Login failed';
     } finally {

@@ -1,3 +1,7 @@
-<div *ngIf="message" class="flash-message">
-    {{ message }}
-  </div>
+<div *ngIf="(flashState$ | async)?.visible" 
+     class="flash-message"
+     [@fadeInOut]
+     [class.login]="(flashState$ | async)?.type === 'login'"
+     [class.logout]="(flashState$ | async)?.type === 'logout'">
+  {{ (flashState$ | async)?.message }}
+</div>

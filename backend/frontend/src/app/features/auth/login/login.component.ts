@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { LoginRequest } from '../../../shared/models/auth.model';
 import { CommonModule } from '@angular/common';
+import { FlashService } from '../../../core/services/flash.service';
 
 @Component({
   selector: 'app-login',
@@ -16,6 +17,7 @@ export class LoginComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly flashService = inject(FlashService);
 
   loginForm!: FormGroup;
   loading = false;
@@ -67,10 +69,12 @@ export class LoginComponent implements OnInit {
 
       await this.authService.login(loginRequest);
       await this.router.navigate([this.returnUrl]);
+      this.flashService.showMessage('Login avvenuto con successo!');
     } catch (error: any) {
       this.error = error.error?.message ?? 'Login failed';
     } finally {
       this.loading = false;
     }
   }
+
 }

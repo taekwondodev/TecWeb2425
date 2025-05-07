@@ -5,5 +5,7 @@ Dockerfile
 .gitignore
 frontend/.angular/cache
 frontend/.vscode
+frontend/node_modules
+frontend/package-lock.json
 frontend/.editorconfig
 frontend/.gitignore

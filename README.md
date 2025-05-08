@@ -4,13 +4,13 @@ This is a university project for the course of TecWeb2425
 
 ## Technologies
 
-Frontend: Angular
+**Frontend**: Angular
 
-Backend: Go
+**Backend**: Go
 
-Database: PostgreSQL
+**Database**: PostgreSQL
 
-Migrations: Flyway
+**Migrations**: Flyway
 
 ## Usage
 

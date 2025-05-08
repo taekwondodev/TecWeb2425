@@ -4,6 +4,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { FlashService } from '../../../core/services/flash.service';
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -19,6 +20,7 @@ export class HeaderComponent implements OnDestroy{
 
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly flashService = inject(FlashService);
 
   constructor() {
     this.authStatusSubscription = this.authService.authStatus$.subscribe(status => {
@@ -36,7 +38,9 @@ export class HeaderComponent implements OnDestroy{
 
   logout(): void {
     this.authService.logout();
-    this.router.navigate(['/']);
+    this.router.navigate(['/']).then(() => {
+      this.flashService.showMessage('Logout effettuato con successo', 'logout');
+    });
   }
 
   search(): void {

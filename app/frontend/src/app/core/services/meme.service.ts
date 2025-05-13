@@ -52,7 +52,7 @@ export class MemeService {
     formData.append('tag', tag);
 
     return firstValueFrom(
-      this.http.post<MemeUploadResponse>(`${this.API_URL}/upload`, formData)
+      this.http.post<MemeUploadResponse>(`${this.API_URL}`, formData)
     );
   }
 

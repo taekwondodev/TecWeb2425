@@ -19,7 +19,7 @@ export class CommentService {
 
     async addComment(memeId: number, content: string): Promise<CreateCommentResponse> {
         return firstValueFrom(this.http.post<CreateCommentResponse>(
-            `${this.API_URL}/upload`, {
+            `${this.API_URL}`, {
             memeId,
             content
         }));

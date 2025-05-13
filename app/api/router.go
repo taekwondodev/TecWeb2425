@@ -37,11 +37,11 @@ func protectedMemeRoutes(memeController *controller.MemeController) {
 }
 
 func publicCommentRoutes(commentController *controller.CommentController) {
-	router.Handle("GET /api/comment", publicMiddleware(commentController.GetComments))
+	router.Handle("GET /api/comments", publicMiddleware(commentController.GetComments))
 }
 
 func protectedCommentRoutes(commentController *controller.CommentController) {
-	router.Handle("POST /api/comment", protectedMiddleware(commentController.CreateComment))
+	router.Handle("POST /api/comments/upload", protectedMiddleware(commentController.CreateComment))
 }
 
 func publicMiddleware(h middleware.HandlerFunc) http.HandlerFunc {

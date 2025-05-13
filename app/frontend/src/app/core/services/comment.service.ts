@@ -8,7 +8,7 @@ import { CreateCommentResponse, GetCommentResponse } from "../../shared/models/c
     providedIn: 'root'
 })
 export class CommentService {
-    private readonly API_URL = `${environment.apiUrl}/comment`;
+    private readonly API_URL = `${environment.apiUrl}/comments`;
 
     constructor(private readonly http: HttpClient) { }
 
@@ -18,7 +18,8 @@ export class CommentService {
     }
 
     async addComment(memeId: number, content: string): Promise<CreateCommentResponse> {
-        return firstValueFrom(this.http.post<CreateCommentResponse>(this.API_URL, {
+        return firstValueFrom(this.http.post<CreateCommentResponse>(
+            `${this.API_URL}/upload`, {
             memeId,
             content
         }));

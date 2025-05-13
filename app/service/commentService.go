@@ -1,13 +1,12 @@
 package service
 
 import (
-	customerrors "backend/customErrors"
 	"backend/dto"
 	"backend/repository"
 )
 
 type CommentService interface {
-	CreateComment(req dto.CreateCommentRequest, username string) (*dto.VoteResponse, error)
+	CreateComment(memeId int, content string, username string) (*dto.VoteResponse, error)
 	GetComments(memeID int) (*dto.GetCommentResponse, error)
 }
 
@@ -19,12 +18,8 @@ func NewCommentService(repo repository.CommentRepository) CommentService {
 	return &CommentServiceImpl{repo: repo}
 }
 
-func (s *CommentServiceImpl) CreateComment(req dto.CreateCommentRequest, username string) (*dto.VoteResponse, error) {
-	if err := req.Validate(); err != nil {
-		return nil, customerrors.ErrBadRequest
-	}
-
-	if err := s.repo.SaveComment(req.MemeID, req.Content, username); err != nil {
+func (s *CommentServiceImpl) CreateComment(memeId int, content string, username string) (*dto.VoteResponse, error) {
+	if err := s.repo.SaveComment(memeId, content, username); err != nil {
 		return nil, err
 	}
 

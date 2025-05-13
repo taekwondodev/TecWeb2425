@@ -26,7 +26,7 @@ type MemeService interface {
 	GetDailyMeme() (*models.Meme, error)
 	GetMemeById(id int) (*models.Meme, error)
 	UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, username string) (*dto.MemeUploadResponse, error)
-	VoteMeme(ctx context.Context, id int, req dto.VoteRequest) (*dto.VoteResponse, error)
+	VoteMeme(ctx context.Context, id, memeId, vote int) (*dto.VoteResponse, error)
 }
 
 type MemeServiceImpl struct {
@@ -146,11 +146,7 @@ func (s *MemeServiceImpl) UploadMeme(file multipart.File, header *multipart.File
 	}, nil
 }
 
-func (s *MemeServiceImpl) VoteMeme(ctx context.Context, id int, req dto.VoteRequest) (*dto.VoteResponse, error) {
-	if err := req.Validate(); err != nil {
-		return nil, customerrors.ErrBadRequest
-	}
-
+func (s *MemeServiceImpl) VoteMeme(ctx context.Context, id, memeId, vote int) (*dto.VoteResponse, error) {
 	// For consistency
 	tx, err := s.repo.BeginTransaction(ctx)
 	if err != nil {
@@ -158,20 +154,20 @@ func (s *MemeServiceImpl) VoteMeme(ctx context.Context, id int, req dto.VoteRequ
 	}
 	defer tx.Rollback()
 
-	actualVote, err := tx.GetVote(ctx, id, req.MemeID)
+	actualVote, err := tx.GetVote(ctx, id, memeId)
 	if err != nil {
 		return nil, err
 	}
 
 	var removed bool
 	switch {
-	case actualVote == req.Vote:
-		err = removeVote(ctx, tx, id, req)
+	case actualVote == vote:
+		err = removeVote(ctx, tx, id, memeId, vote)
 		removed = true
-	case actualVote == -req.Vote:
-		err = switchVoteUpdate(ctx, tx, id, req, actualVote)
+	case actualVote == -vote:
+		err = switchVoteUpdate(ctx, tx, id, memeId, vote, actualVote)
 	default:
-		err = newVote(ctx, tx, id, req)
+		err = newVote(ctx, tx, id, memeId, vote)
 	}
 
 	if err != nil {
@@ -216,26 +212,26 @@ func isCacheValid(cache *models.Meme, lastUpdate time.Time) bool {
 	return cache != nil && time.Since(lastUpdate) < 24*time.Hour
 }
 
-func removeVote(ctx context.Context, tx repository.VoteRepository, id int, req dto.VoteRequest) error {
-	err := tx.DeleteVote(ctx, id, req.MemeID)
+func removeVote(ctx context.Context, tx repository.VoteRepository, id, memeId, vote int) error {
+	err := tx.DeleteVote(ctx, id, memeId)
 	if err != nil {
 		return err
 	}
-	return tx.UpdateMemeVoteCountOnRemove(ctx, req.MemeID, req.Vote)
+	return tx.UpdateMemeVoteCountOnRemove(ctx, memeId, vote)
 }
 
-func switchVoteUpdate(ctx context.Context, tx repository.VoteRepository, id int, req dto.VoteRequest, actualVote int) error {
-	err := tx.UpdateVote(ctx, id, req.MemeID, req.Vote)
+func switchVoteUpdate(ctx context.Context, tx repository.VoteRepository, id, memeId, vote, actualVote int) error {
+	err := tx.UpdateVote(ctx, id, memeId, vote)
 	if err != nil {
 		return err
 	}
-	return tx.UpdateMemeVoteCount(ctx, req.MemeID, req.Vote, actualVote)
+	return tx.UpdateMemeVoteCount(ctx, memeId, vote, actualVote)
 }
 
-func newVote(ctx context.Context, tx repository.VoteRepository, id int, req dto.VoteRequest) error {
-	err := tx.CreateVote(ctx, id, req.MemeID, req.Vote)
+func newVote(ctx context.Context, tx repository.VoteRepository, id, memeId, vote int) error {
+	err := tx.CreateVote(ctx, id, memeId, vote)
 	if err != nil {
 		return err
 	}
-	return tx.UpdateMemeVoteCount(ctx, req.MemeID, req.Vote, 0)
+	return tx.UpdateMemeVoteCount(ctx, memeId, vote, 0)
 }

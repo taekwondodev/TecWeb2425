@@ -7,7 +7,6 @@ import (
 )
 
 type CreateCommentRequest struct {
-	MemeID  int    `json:"memeId" validate:"required,min=1"`
 	Content string `json:"content" validate:"required,min=1,max=500"`
 }
 

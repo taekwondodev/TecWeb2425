@@ -114,12 +114,17 @@ func (c *MemeController) VoteMeme(w http.ResponseWriter, r *http.Request) error 
 		return customerrors.ErrInvalidCredentials
 	}
 
+	memeId, err := strconv.Atoi(r.PathValue("memeId"))
+	if err != nil || memeId < 1 {
+		return customerrors.ErrBadRequest
+	}
+
 	var req dto.VoteRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return customerrors.ErrBadRequest
 	}
 
-	res, err := c.service.VoteMeme(r.Context(), claims.Id, req)
+	res, err := c.service.VoteMeme(r.Context(), claims.Id, memeId, req.Vote)
 	if err != nil {
 		return err
 	}

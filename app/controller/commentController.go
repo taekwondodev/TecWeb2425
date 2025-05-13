@@ -24,12 +24,17 @@ func (c *CommentController) CreateComment(w http.ResponseWriter, r *http.Request
 		return customerrors.ErrInvalidCredentials
 	}
 
+	memeId, err := strconv.Atoi(r.PathValue("memeId"))
+	if err != nil || memeId < 1 {
+		return customerrors.ErrBadRequest
+	}
+
 	var req dto.CreateCommentRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return customerrors.ErrBadRequest
 	}
 
-	res, err := c.service.CreateComment(req, claims.Username)
+	res, err := c.service.CreateComment(memeId, req.Content, claims.Username)
 	if err != nil {
 		return err
 	}
@@ -38,12 +43,12 @@ func (c *CommentController) CreateComment(w http.ResponseWriter, r *http.Request
 }
 
 func (c *CommentController) GetComments(w http.ResponseWriter, r *http.Request) error {
-	memeID, err := strconv.Atoi(r.URL.Query().Get("memeId"))
-	if err != nil {
+	memeId, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil || memeId < 1 {
 		return customerrors.ErrBadRequest
 	}
 
-	res, err := c.service.GetComments(memeID)
+	res, err := c.service.GetComments(memeId)
 	if err != nil {
 		return err
 	}

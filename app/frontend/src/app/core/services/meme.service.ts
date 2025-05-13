@@ -58,8 +58,7 @@ export class MemeService {
 
   async voteMeme(memeId: number, vote: number): Promise<VoteResponse> {
     return firstValueFrom(
-      this.http.patch<VoteResponse>(`${this.API_URL}/vote`, {
-        memeId,
+      this.http.patch<VoteResponse>(`${this.API_URL}/${memeId}/vote`, {
         vote
       })
     );

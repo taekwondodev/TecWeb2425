@@ -1,12 +1,15 @@
 package repository
 
 import (
+	customerrors "backend/customErrors"
 	"backend/models"
 	"context"
 	"database/sql"
 	"fmt"
+	"html"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 type MemeRepository interface {
@@ -27,6 +30,12 @@ func NewMemeRepository(db *sql.DB) MemeRepository {
 }
 
 func (m *MemeRepositoryImpl) SaveMeme(fileName string, tag string, username string) (int, error) {
+	tag = sanitize(tag)
+
+	if tag == "" || username == "" {
+		return -1, customerrors.ErrBadRequest
+	}
+
 	query := "INSERT INTO memes (tag, image_path, created_by) VALUES ($1, $2, $3) RETURNING id"
 
 	var id int
@@ -170,27 +179,52 @@ func (m *MemeRepositoryImpl) buildFilterQuery(baseQuery string, filterDateFrom, 
 
 	// Add date filters if provided
 	if filterDateFrom != "" {
-		query += fmt.Sprintf(" AND created_at >= $%d", argPosition)
-		args = append(args, filterDateFrom)
-		argPosition++
+		if isValidDate(filterDateFrom) {
+			query += fmt.Sprintf(" AND created_at >= $%d", argPosition)
+			args = append(args, filterDateFrom)
+			argPosition++
+		}
 	}
 
 	if filterDateTo != "" {
-		query += fmt.Sprintf(" AND created_at <= $%d", argPosition)
-		args = append(args, filterDateTo)
-		argPosition++
+		if isValidDate(filterDateTo) {
+			query += fmt.Sprintf(" AND created_at <= $%d", argPosition)
+			args = append(args, filterDateTo)
+			argPosition++
+		}
 	}
 
 	// Add tag filter if provided
 	if len(filterTags) > 0 {
 		placeholders := make([]string, len(filterTags))
 		for i, tag := range filterTags {
-			placeholders[i] = fmt.Sprintf("tag LIKE $%d", argPosition)
-			args = append(args, "%"+tag+"%") // Using LIKE with wildcard for tag matching
-			argPosition++
+			sanitezedTag := sanitize(tag)
+			if sanitezedTag != "" {
+				placeholders[i] = fmt.Sprintf("tag LIKE $%d", argPosition)
+				args = append(args, "%"+sanitezedTag+"%") // Using LIKE with wildcard for tag matching
+				argPosition++
+			}
 		}
 		query += " AND (" + strings.Join(placeholders, " OR ") + ")"
 	}
 
 	return query, args, argPosition
+}
+
+func sanitize(input string) string {
+	input = strings.TrimSpace(input)
+
+	input = html.EscapeString(input)
+
+	if utf8.RuneCountInString(input) > 100 {
+		runes := []rune(input)
+		input = string(runes[:100])
+	}
+
+	return input
+}
+
+func isValidDate(dateStr string) bool {
+	_, err := time.Parse("2006-01-02", dateStr)
+	return err == nil
 }

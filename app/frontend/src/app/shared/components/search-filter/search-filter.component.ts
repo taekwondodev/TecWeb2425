@@ -39,8 +39,11 @@ export class SearchFilterComponent {
     const filters = {
       sortBy: formValue.sortBy,
       tags: formValue.tags 
-        ? formValue.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t)
-        : [],
+            ? formValue.tags.split(',')
+                .map((t: string) => t.trim())
+                .filter((t: string) => t.length > 0 && t.length <= 50)
+                .slice(0, 10)
+            : [],
       dateFrom: formValue.dateFrom 
         ? new Date(formValue.dateFrom).toISOString().split('T')[0] 
         : '',

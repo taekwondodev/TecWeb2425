@@ -26,6 +26,11 @@ func (s *AuthServiceImpl) Register(req dto.AuthRequest) (*dto.AuthResponse, erro
 	if err := req.Validate(); err != nil {
 		return nil, customerrors.ErrBadRequest
 	}
+	req.Sanitize()
+
+	if req.Username == "" || req.Email == "" {
+		return nil, customerrors.ErrBadRequest
+	}
 
 	if err := s.repo.CheckUserExists(req.Username, req.Email); err != nil {
 		return nil, err
@@ -40,6 +45,11 @@ func (s *AuthServiceImpl) Register(req dto.AuthRequest) (*dto.AuthResponse, erro
 
 func (s *AuthServiceImpl) Login(req dto.AuthRequest) (*dto.AuthResponse, error) {
 	if err := req.Validate(); err != nil {
+		return nil, customerrors.ErrBadRequest
+	}
+	req.Sanitize()
+
+	if req.Username == "" {
 		return nil, customerrors.ErrBadRequest
 	}
 

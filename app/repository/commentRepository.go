@@ -1,8 +1,12 @@
 package repository
 
 import (
+	customerrors "backend/customErrors"
 	"backend/models"
 	"database/sql"
+	"html"
+	"strings"
+	"unicode/utf8"
 )
 
 type CommentRepository interface {
@@ -19,6 +23,11 @@ func NewCommentRepository(db *sql.DB) CommentRepository {
 }
 
 func (m *CommentRepositoryImpl) SaveComment(memeID int, content string, username string) error {
+	content = sanitizeContent(content)
+	if content == "" {
+		return customerrors.ErrBadRequest
+	}
+
 	query := "INSERT INTO comments (meme_id, content, created_by) VALUES ($1, $2, $3)"
 	_, err := m.db.Exec(query, memeID, content, username)
 
@@ -46,4 +55,20 @@ func (m *CommentRepositoryImpl) GetComments(memeID int) ([]models.Comment, error
 	}
 
 	return comments, nil
+}
+
+func sanitizeContent(content string) string {
+	content = strings.TrimSpace(content)
+
+	content = html.EscapeString(content)
+
+	content = strings.ReplaceAll(content, "<", "&lt;")
+	content = strings.ReplaceAll(content, ">", "&gt;")
+
+	if utf8.RuneCountInString(content) > 500 {
+		runes := []rune(content)
+		content = string(runes[:500])
+	}
+
+	return content
 }

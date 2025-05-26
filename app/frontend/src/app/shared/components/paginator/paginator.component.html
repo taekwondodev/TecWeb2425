@@ -1,11 +1,14 @@
 <div class="paginator">
+  @for (page of visiblePages; track page) {
     <button 
-      *ngFor="let page of visiblePages" 
       (click)="changePage(page)"
       [class.active]="page === currentPage"
       [disabled]="page === currentPage"
     >
       {{ page }}
     </button>
-    <span *ngIf="showEllipsis">...</span>
-  </div>
+  }
+  @if (showEllipsis) {
+    <span>...</span>
+  }
+</div>

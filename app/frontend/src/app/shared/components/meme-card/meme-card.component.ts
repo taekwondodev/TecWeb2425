@@ -2,13 +2,14 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Meme } from '../../models/meme.model';
 import { AuthService } from '../../../core/services/auth.service';
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
+
 
 @Component({
   selector: 'app-meme-card',
   templateUrl: './meme-card.component.html',
   standalone: true,
-  imports: [CommonModule],
+  imports: [DatePipe],
   styleUrls: ['./meme-card.component.css']
 })
 export class MemeCardComponent {

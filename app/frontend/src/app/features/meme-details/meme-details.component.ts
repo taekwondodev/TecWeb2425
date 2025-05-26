@@ -2,16 +2,16 @@ import { Component, inject, OnDestroy } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MemeService } from '../../core/services/meme.service';
 import { Meme } from '../../shared/models/meme.model';
-import { CommonModule } from '@angular/common';
 import { CommentSectionComponent } from "../../shared/components/comment-section/comment-section.component";
 import { UpvoteDownvoteComponent } from "../../shared/components/upvote-downvote/upvote-downvote.component";
 import { Subject, takeUntil } from 'rxjs';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-meme-details',
   templateUrl: './meme-details.component.html',
   standalone: true,
-  imports: [CommonModule, CommentSectionComponent, UpvoteDownvoteComponent, RouterModule],
+  imports: [CommentSectionComponent, UpvoteDownvoteComponent, RouterModule, DatePipe],
   styleUrls: ['./meme-details.component.css']
 })
 export class MemeDetailsComponent implements OnDestroy {

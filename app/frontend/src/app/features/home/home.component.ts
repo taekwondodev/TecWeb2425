@@ -1,7 +1,6 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MemeService } from '../../core/services/meme.service';
 import { GetMemeResponse } from '../../shared/models/meme.model';
-import { CommonModule } from '@angular/common';
 import { SearchFilterComponent } from "../../shared/components/search-filter/search-filter.component";
 import { MemeCardComponent } from "../../shared/components/meme-card/meme-card.component";
 import { PaginatorComponent } from "../../shared/components/paginator/paginator.component";
@@ -12,7 +11,7 @@ import { Subject, takeUntil } from 'rxjs';
   selector: 'app-home',
   templateUrl: './home.component.html',
   standalone: true,
-  imports: [CommonModule, SearchFilterComponent, MemeCardComponent, PaginatorComponent],
+  imports: [SearchFilterComponent, MemeCardComponent, PaginatorComponent],
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit, OnDestroy {

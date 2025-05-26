@@ -1,15 +1,20 @@
 <div class="meme-details-container">
-  <div *ngIf="isLoading" class="loading-indicator">
+  @if (isLoading) {
+  <div class="loading-indicator">
     <p>Caricamento del meme in corso...</p>
   </div>
+  }
 
-  <div *ngIf="!isLoading && error" class="error-message">
+  @if (!isLoading && error) {
+  <div class="error-message">
     <h2>Errore</h2>
     <p>Impossibile caricare il meme richiesto. Verifica che l'ID sia corretto o riprova più tardi.</p>
     <a routerLink="/" class="back-link">Torna alla home</a>
   </div>
+  }
 
-  <div *ngIf="!isLoading && meme" class="meme-content">
+  @if (!isLoading && meme) {
+  <div class="meme-content">
     <div class="meme-header">
       <h1 class="meme-title">{{ meme.tag }}</h1>
     </div>
@@ -24,12 +29,12 @@
       </div>
 
       <div class="vote-actions">
-        <app-upvote-downvote 
-        [memeId]="meme.id" [upvotes]="meme.upvotes" [downvotes]="meme.downvotes"
-        ></app-upvote-downvote>
+        <app-upvote-downvote [memeId]="meme.id" [upvotes]="meme.upvotes"
+          [downvotes]="meme.downvotes"></app-upvote-downvote>
       </div>
     </div>
 
     <app-comment-section [memeId]="meme.id"></app-comment-section>
   </div>
+  }
 </div>

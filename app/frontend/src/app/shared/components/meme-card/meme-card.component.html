@@ -11,7 +11,8 @@
         {{ meme.createdAt | date:'dd/MM/yyyy' }}
       </span>
 
-      <div *ngIf="showActions" class="meme-actions">
+      @if (showActions) {
+      <div class="meme-actions">
         <div class="vote-actions">
           <button (click)="upvoteMeme()" [disabled]="!isLoggedIn" class="upvote-btn">
             <i class="fas fa-arrow-up"></i> {{ meme.upvotes }}
@@ -21,6 +22,7 @@
           </button>
         </div>
       </div>
+      }
     </div>
   </div>
 </div>

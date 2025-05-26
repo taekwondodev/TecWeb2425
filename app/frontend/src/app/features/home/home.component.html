@@ -16,31 +16,34 @@
         {{ searchQuery ? `Risultati per: "${searchQuery}"` : 'Scopri i Meme' }}
       </h2>
 
-      <div *ngIf="isLoading" class="loading-indicator">
+      @if (isLoading) {
+      <div class="loading-indicator">
         <p>Caricamento meme in corso...</p>
       </div>
+      }
 
-      <div *ngIf="!isLoading && (!memeResponse || memeResponse.memes === null || memeResponse.memes.length === 0)" class="no-memes-message">
-        <ng-container *ngIf="searchQuery || activeFilters.tags.length > 0; else noMemesDefault">
-          <h3>Nessun risultato trovato</h3>
-        </ng-container>
-        <ng-template #noMemesDefault>
-          <p>Nessun meme disponibile al momento.</p>
-        </ng-template>
+      @if (!isLoading && (!memeResponse || memeResponse.memes === null || memeResponse.memes.length === 0)) {
+      <div class="no-memes-message">
+        @if (searchQuery || activeFilters.tags.length > 0) {
+        <h3>Nessun risultato trovato</h3>
+        } @else {
+        <p>Nessun meme disponibile al momento.</p>
+        }
       </div>
+      }
 
       <div class="memes-grid-container">
-        <div *ngFor="let meme of memeResponse?.memes" class="meme-grid-item">
+        @for (meme of memeResponse?.memes; track meme.id) {
+        <div class="meme-grid-item">
           <app-meme-card [meme]="meme"></app-meme-card>
         </div>
+        }
       </div>
 
-      <app-paginator 
-        *ngIf="memeResponse && memeResponse.totalPages > 1"
-        [currentPage]="currentPage" 
-        [totalPages]="memeResponse.totalPages || 1"
-        (pageChange)="onPageChange($event)"
-      ></app-paginator>
+      @if (memeResponse && memeResponse.totalPages > 1) {
+      <app-paginator [currentPage]="currentPage" [totalPages]="memeResponse.totalPages || 1"
+        (pageChange)="onPageChange($event)"></app-paginator>
+      }
 
     </main>
   </div>

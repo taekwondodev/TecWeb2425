@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Output, EventEmitter, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
@@ -6,7 +5,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
   selector: 'app-search-filter',
   templateUrl: './search-filter.component.html',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule],
   styleUrls: ['./search-filter.component.css']
 })
 export class SearchFilterComponent {

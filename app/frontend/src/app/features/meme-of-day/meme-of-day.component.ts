@@ -1,15 +1,15 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MemeService } from '../../core/services/meme.service';
 import { Meme } from '../../shared/models/meme.model';
-import { CommonModule } from '@angular/common';
 import { UpvoteDownvoteComponent } from "../../shared/components/upvote-downvote/upvote-downvote.component";
 import { CommentSectionComponent } from "../../shared/components/comment-section/comment-section.component";
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-meme-of-day',
   templateUrl: './meme-of-day.component.html',
   standalone: true,
-  imports: [CommonModule, UpvoteDownvoteComponent, CommentSectionComponent],
+  imports: [UpvoteDownvoteComponent, CommentSectionComponent, DatePipe],
   styleUrls: ['./meme-of-day.component.css']
 })
 export class MemeOfDayComponent implements OnInit {

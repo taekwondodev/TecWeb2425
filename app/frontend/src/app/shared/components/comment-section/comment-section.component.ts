@@ -2,7 +2,6 @@ import { Component, inject, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Comment } from '../../models/comment.model';
 import { AuthService } from '../../../core/services/auth.service';
-import { CommonModule } from '@angular/common';
 import { CommentService } from '../../../core/services/comment.service';
 import { RouterModule } from '@angular/router';
 
@@ -10,7 +9,7 @@ import { RouterModule } from '@angular/router';
   selector: 'app-comment-section',
   templateUrl: './comment-section.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [ReactiveFormsModule, RouterModule],
   styleUrls: ['./comment-section.component.css']
 })
 export class CommentSectionComponent implements OnInit {

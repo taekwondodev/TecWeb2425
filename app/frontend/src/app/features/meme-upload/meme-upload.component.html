@@ -6,44 +6,59 @@
       <div class="form-group">
         <label for="image">Immagine</label>
         <div class="image-upload-area" [class.has-preview]="imagePreview">
-          <div class="image-preview" *ngIf="imagePreview">
+          @if (imagePreview) {
+          <div class="image-preview">
             <img [src]="imagePreview" alt="Anteprima">
-            <br/>
+            <br />
             <button type="button" class="change-image-btn" (click)="fileInput.click()">
               Cambia immagine
             </button>
           </div>
+          }
 
           <div class="upload-controls">
-            <input type="file" id="image" (change)="onFileSelected($event)" accept="image/jpeg, image/png, image/gif" class="file-input"
-              #fileInput required>
+            <input type="file" id="image" (change)="onFileSelected($event)" accept="image/jpeg, image/png, image/gif"
+              class="file-input" #fileInput required>
             <button type="button" class="select-file-btn" (click)="fileInput.click()">
               Seleziona file
             </button>
             <p class="file-hint">Formati supportati: JPG, PNG, GIF (max 10 MB)</p>
           </div>
         </div>
-        <div class="error-message" *ngIf="uploadForm.get('image')?.invalid && uploadForm.get('image')?.touched">
-          <span *ngIf="uploadForm.get('image')?.hasError('required')">L'immagine è obbligatoria.</span>
+        @if (uploadForm.get('image')?.invalid && uploadForm.get('image')?.touched) {
+        <div class="error-message">
+          @if (uploadForm.get('image')?.hasError('required')) {
+          <span>L'immagine è obbligatoria.</span>
+          }
         </div>
+        }
       </div>
 
       <div class="form-group">
         <label for="tag">Tag *</label>
         <input type="text" id="tag" formControlName="tag" placeholder="Es: funny, cats, gaming..." class="tag-input">
-        <div class="error-message" *ngIf="uploadForm.get('tag')?.invalid && uploadForm.get('tag')?.touched">
-          <span *ngIf="uploadForm.get('tag')?.hasError('required')">Il tag è obbligatorio</span>
+        @if (uploadForm.get('tag')?.invalid && uploadForm.get('tag')?.touched) {
+        <div class="error-message">
+          @if (uploadForm.get('tag')?.hasError('required')) {
+          <span>Il tag è obbligatorio</span>
+          }
         </div>
+        }
       </div>
 
-      <div *ngIf="uploadError" class="error-alert">
+      @if (uploadError) {
+      <div class="error-alert">
         {{ uploadError }}
       </div>
+      }
 
       <div class="form-actions">
         <button type="submit" class="submit-btn" [disabled]="isSubmitting">
-          <span *ngIf="!isSubmitting">Pubblica Meme</span>
-          <span *ngIf="isSubmitting">Caricamento in corso...</span>
+          @if (!isSubmitting) {
+          <span>Pubblica Meme</span>
+          } @else {
+          <span>Caricamento in corso...</span>
+          }
         </button>
       </div>
     </form>

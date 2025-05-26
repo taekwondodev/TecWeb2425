@@ -5,9 +5,11 @@
     <div class="form-group">
       <label for="sortBy">Ordina per:</label>
       <select id="sortBy" formControlName="sortBy" class="form-control">
-        <option *ngFor="let option of sortOptions" [value]="option.value">
+        @for (option of sortOptions; track option.value){
+        <option [value]="option.value">
           {{ option.label }}
         </option>
+        }
       </select>
     </div>
 

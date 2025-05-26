@@ -2,13 +2,12 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MemeService } from '../../core/services/meme.service';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-meme-upload',
   templateUrl: './meme-upload.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   styleUrls: ['./meme-upload.component.css']
 })
 export class MemeUploadComponent {

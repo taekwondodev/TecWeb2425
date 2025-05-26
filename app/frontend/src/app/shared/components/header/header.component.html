@@ -20,7 +20,7 @@
 
         @if (isLoggedIn) {
         <li><a routerLink="/upload" routerLinkActive="active">Carica Meme</a></li>
-        <li><a href="javascript:void(0)" (click)="logout()">Logout</a></li>
+        <li><a (click)="logout()">Logout</a></li>
         } @else {
         <li><a routerLink="/login" routerLinkActive="active">Login</a></li>
         <li><a routerLink="/register" routerLinkActive="active">Registrati</a></li>

@@ -29,6 +29,7 @@ func publicMemeRoutes(memeController *controller.MemeController) {
 	router.Handle("GET /api/memes", publicMiddleware(memeController.GetMemes))
 	router.Handle("GET /api/memes/daily", publicMiddleware(memeController.GetDailyMeme))
 	router.Handle("GET /api/memes/{id}", publicMiddleware(memeController.GetMemeById))
+	router.Handle("GET /api/memes/{memeId}/vote", publicMiddleware(memeController.GetVote))
 }
 
 func protectedMemeRoutes(memeController *controller.MemeController) {

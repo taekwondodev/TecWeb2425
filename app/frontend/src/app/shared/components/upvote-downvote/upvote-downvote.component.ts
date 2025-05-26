@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { MemeService } from '../../../core/services/meme.service';
@@ -11,11 +11,11 @@ import { VoteResponse } from '../../models/meme.model';
   imports: [],
   styleUrls: ['./upvote-downvote.component.css']
 })
-export class UpvoteDownvoteComponent {
+export class UpvoteDownvoteComponent implements OnInit {
   @Input() memeId!: number;
   @Input() upvotes: number = 0;
   @Input() downvotes: number = 0;
-  @Input() userVote: 'up' | 'down' | null = null;
+  userVote: 'up' | 'down' | null = null;
   disabledUp: boolean = false;
   disabledDown: boolean = false;
 
@@ -23,8 +23,33 @@ export class UpvoteDownvoteComponent {
   private readonly router = inject(Router);
   private readonly memeService = inject(MemeService);
 
+  ngOnInit(): void {
+    if (this.isLoggedIn) {
+      this.loadUserVote();
+    } else {
+      this.userVote = null;
+      this.updateButtonStates();
+    }
+  }
+
   get isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
+  }
+
+  private async loadUserVote(): Promise<void> {
+    try {
+      const vote = await this.memeService.getUserVote(this.memeId);
+      this.userVote = vote === 1 ? 'up' : vote === -1 ? 'down' : null;
+      this.updateButtonStates();
+    } catch (error) {
+      console.error('Error loading user vote:', error);
+      this.userVote = null;
+    }
+  }
+
+  private updateButtonStates(): void {
+    this.disabledUp = this.userVote === 'down';
+    this.disabledDown = this.userVote === 'up';
   }
 
   async upvote(): Promise<void> {
@@ -58,23 +83,25 @@ export class UpvoteDownvoteComponent {
   private updateUpVotes(response: VoteResponse): void {
     if (response.removed) {
       this.upvotes--;
-      this.disabledDown = false;
+      this.userVote = null;
     }
     else {
       this.upvotes++;
-      this.disabledDown = true;
+      this.userVote = 'up';
     }
+    this.updateButtonStates();
   }
 
   private updateDownVotes(response: VoteResponse): void {
     if (response.removed) {
       this.downvotes--;
-      this.disabledUp = false;
+      this.userVote = null;
     }
     else {
       this.downvotes++;
-      this.disabledUp = true;
+      this.userVote = 'down';
     }
+    this.updateButtonStates();
   }
 
 }

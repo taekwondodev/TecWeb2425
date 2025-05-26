@@ -11,13 +11,19 @@ import { Router } from '@angular/router';
 export class AuthService {
   private readonly API_URL = `${environment.apiUrl}/auth`;
   private readonly accessTokenSubject = new BehaviorSubject<string | null>(null);
-  private readonly authStatus = new BehaviorSubject<boolean>(this.isLoggedIn());
+  private readonly authStatus = new BehaviorSubject<boolean>(false);
   refreshTokenInProgress = false;
   private readonly tokenRefreshedSource = new BehaviorSubject<void>(undefined);
   tokenRefreshed$ = this.tokenRefreshedSource.asObservable();
   authStatus$ = this.authStatus.asObservable();
 
-  constructor(private readonly http: HttpClient, private readonly router: Router) { }
+  constructor(private readonly http: HttpClient, private readonly router: Router) {
+    const isLoggedIn = this.isLoggedIn();
+    this.authStatus.next(isLoggedIn);
+    if (isLoggedIn) {
+      this.accessTokenSubject.next(this.getAccessToken());
+    }
+  }
 
   async login(loginData: LoginRequest): Promise<AuthResponse> {
     try {
@@ -55,11 +61,11 @@ export class AuthService {
       if (!refreshToken) {
         throw new Error('No refresh token available');
       }
-  
+
       const response = await firstValueFrom(
         this.http.post<AuthResponse>(`${this.API_URL}/refresh`, { refreshToken })
       );
-      
+
       this.storeTokens(response);
       this.tokenRefreshedSource.next();
       return response;

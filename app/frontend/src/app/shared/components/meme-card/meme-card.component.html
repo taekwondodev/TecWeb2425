@@ -13,14 +13,11 @@
 
       @if (showActions) {
       <div class="meme-actions">
-        <div class="vote-actions">
-          <button (click)="upvoteMeme()" [disabled]="!isLoggedIn" class="upvote-btn">
-            <i class="fas fa-arrow-up"></i> {{ meme.upvotes }}
-          </button>
-          <button (click)="downvoteMeme()" [disabled]="!isLoggedIn" class="downvote-btn">
-            <i class="fas fa-arrow-down"></i> {{ meme.downvotes }}
-          </button>
-        </div>
+        <app-upvote-downvote 
+            [memeId]="meme.id" 
+            [upvotes]="meme.upvotes"
+            [downvotes]="meme.downvotes">
+          </app-upvote-downvote>
       </div>
       }
     </div>

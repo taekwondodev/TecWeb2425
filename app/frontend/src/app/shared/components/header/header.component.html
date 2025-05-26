@@ -7,7 +7,7 @@
     </div>
 
     <div class="search-bar">
-      <input type="text" [(ngModel)]="searchQuery" placeholder="Cerca meme per tag..." (keyup.enter)="search()">
+      <input type="text" id="search"[(ngModel)]="searchQuery" placeholder="Cerca meme per tag..." (keyup.enter)="search()">
       <button (click)="search()">
         <i class="fas fa-search"></i>
       </button>
@@ -29,7 +29,7 @@
     </nav>
 
     <button class="menu-toggle" (click)="toggleMenu()">
-      <i class="fas" [ngClass]="isMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+      <i class="fas" [class]="'fas ' + (isMenuOpen ? 'fa-times' : 'fa-bars')"></i>
     </button>
   </div>
 </header>

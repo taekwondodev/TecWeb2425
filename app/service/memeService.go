@@ -25,6 +25,7 @@ type MemeService interface {
 	GetMemes(ctx context.Context, page int, pageSize int, sortBy string, filterOptions dto.MemeFilterOptions) (*dto.GetMemeResponse, error)
 	GetDailyMeme() (*models.Meme, error)
 	GetMemeById(id int) (*models.Meme, error)
+	GetVote(ctx context.Context, userId, memeId int) (*dto.VoteRequest, error)
 	UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, username string) (*dto.MemeUploadResponse, error)
 	VoteMeme(ctx context.Context, id, memeId, vote int) (*dto.VoteResponse, error)
 }
@@ -118,6 +119,25 @@ func (s *MemeServiceImpl) GetMemeById(id int) (*models.Meme, error) {
 	}
 
 	return meme, nil
+}
+
+func (s *MemeServiceImpl) GetVote(ctx context.Context, userId, memeId int) (*dto.VoteRequest, error) {
+	if userId == 0 {
+		return &dto.VoteRequest{Vote: 0}, nil
+	}
+
+	tx, err := s.repo.BeginTransaction(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	vote, err := tx.GetVote(ctx, userId, memeId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.VoteRequest{Vote: vote}, nil
 }
 
 func (s *MemeServiceImpl) UploadMeme(file multipart.File, header *multipart.FileHeader, tag string, username string) (*dto.MemeUploadResponse, error) {

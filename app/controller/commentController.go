@@ -43,7 +43,7 @@ func (c *CommentController) CreateComment(w http.ResponseWriter, r *http.Request
 }
 
 func (c *CommentController) GetComments(w http.ResponseWriter, r *http.Request) error {
-	memeId, err := strconv.Atoi(r.PathValue("id"))
+	memeId, err := strconv.Atoi(r.PathValue("memeId"))
 	if err != nil || memeId < 1 {
 		return customerrors.ErrBadRequest
 	}

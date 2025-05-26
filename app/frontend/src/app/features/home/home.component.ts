@@ -1,11 +1,10 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MemeService } from '../../core/services/meme.service';
 import { GetMemeResponse } from '../../shared/models/meme.model';
 import { SearchFilterComponent } from "../../shared/components/search-filter/search-filter.component";
 import { MemeCardComponent } from "../../shared/components/meme-card/meme-card.component";
 import { PaginatorComponent } from "../../shared/components/paginator/paginator.component";
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -14,7 +13,7 @@ import { Subject, takeUntil } from 'rxjs';
   imports: [SearchFilterComponent, MemeCardComponent, PaginatorComponent],
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit {
   memeResponse: GetMemeResponse | null = null;
   currentPage = 1;
   pageSize = 10;
@@ -31,11 +30,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   private readonly memeService = inject(MemeService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     this.route.queryParams
-      .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
         this.searchQuery = params['query'] ?? '';
         this.currentPage = parseInt(params['page']) || 1;
@@ -50,11 +47,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         this.loadMemes();
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   async loadMemes(): Promise<void> {

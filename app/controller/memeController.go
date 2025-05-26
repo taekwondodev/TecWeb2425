@@ -82,6 +82,30 @@ func (c *MemeController) GetMemeById(w http.ResponseWriter, r *http.Request) err
 	return c.respond(w, http.StatusOK, res)
 }
 
+func (c *MemeController) GetVote(w http.ResponseWriter, r *http.Request) error {
+	var userId int = 0
+	authHeader := r.Header.Get("Authorization")
+	if authHeader != "" && strings.HasPrefix(authHeader, "Bearer ") {
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+		if claims, err := (&config.JWT{}).ValidateJWT(tokenString); err == nil {
+			userId = claims.Id
+		}
+	}
+
+	memeId, err := strconv.Atoi(r.PathValue("memeId"))
+	if err != nil || memeId < 1 {
+		return customerrors.ErrBadRequest
+	}
+
+	res, err := c.service.GetVote(r.Context(), userId, memeId)
+	if err != nil {
+		return err
+	}
+
+	return c.respond(w, http.StatusOK, res)
+}
+
 func (c *MemeController) UploadMeme(w http.ResponseWriter, r *http.Request) error {
 	claims, err := middleware.GetClaimsFromContext(r.Context())
 	if err != nil {

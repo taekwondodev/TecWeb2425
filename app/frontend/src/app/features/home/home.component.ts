@@ -1,4 +1,11 @@
-import { Component, inject, OnInit, signal, computed, effect } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  signal,
+  computed,
+  effect,
+} from '@angular/core';
 import { MemeService } from '../../core/services/meme.service';
 import { GetMemeResponse } from '../../shared/models/meme.model';
 import { SearchFilterComponent } from '../../shared/components/search-filter/search-filter.component';
@@ -42,12 +49,12 @@ export class HomeComponent implements OnInit {
 
   readonly hasResults = computed(() => {
     const response = this._memeResponse();
-    return response?.memes !== undefined && response.memes.length > 0;
+    return response?.memes && response.memes.length > 0;
   });
 
   readonly showPagination = computed(() => {
     const response = this._memeResponse();
-    return response?.totalPages !== undefined && response.totalPages > 1;
+    return response?.totalPages && response.totalPages > 1;
   });
 
   private readonly memeService = inject(MemeService);

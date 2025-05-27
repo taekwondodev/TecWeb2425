@@ -35,13 +35,13 @@
   }
 
   <div class="comments-list">
-    @if (comments().length === 0) {
+    @if (!comments() || comments().length === 0) {
     <div class="no-comments">
       <p>Non ci sono ancora commenti. Sii il primo a commentare!</p>
     </div>
     }
 
-    @for (comment of comments(); track comment.id) {
+    @for (comment of comments() || []; track comment.id) {
     <div class="comment-item">
       <div class="comment-header">
         <span class="username">{{ comment.createdBy }}</span>

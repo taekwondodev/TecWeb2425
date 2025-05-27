@@ -24,7 +24,7 @@
 
       @if (!isLoading() && (!memeResponse() || memeResponse()?.memes === null || memeResponse()?.memes?.length === 0)) {
       <div class="no-memes-message">
-        @if (searchQuery() || activeFilters().tags.length > 0) {
+        @if (searchQuery() || (activeFilters().tags && activeFilters().tags.length > 0)) {
         <h3>Nessun risultato trovato</h3>
         } @else {
         <p>Nessun meme disponibile al momento.</p>
@@ -33,7 +33,7 @@
       }
 
       <div class="memes-grid-container">
-        @for (meme of memeResponse()?.memes; track meme.id) {
+        @for (meme of memeResponse()?.memes || []; track meme.id) {
         <div class="meme-grid-item">
           <app-meme-card [meme]="meme"></app-meme-card>
         </div>

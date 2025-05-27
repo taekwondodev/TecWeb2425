@@ -1,9 +1,9 @@
-@if ((flashState$ | async)?.visible) {
+@if (flashState().visible) {
   <div 
      class="flash-message"
      [@fadeInOut]
-     [class.login]="(flashState$ | async)?.type === 'login'"
-     [class.logout]="(flashState$ | async)?.type === 'logout'">
-    {{ (flashState$ | async)?.message }}
+     [class.login]="flashState().type === 'login'"
+     [class.logout]="flashState().type === 'logout'">
+    {{ flashState().message }}
   </div>
 }

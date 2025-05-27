@@ -1,7 +1,7 @@
 <div class="comment-section">
   <h3 class="section-title">Commenti</h3>
 
-  @if (isLoggedIn) {
+  @if (isLoggedIn()) {
   <div class="comment-form">
     <form [formGroup]="commentForm" (ngSubmit)="submitComment()">
       <div class="form-group">
@@ -20,10 +20,10 @@
         }
       </div>
 
-      <button type="submit" [disabled]="isSubmitting" class="submit-btn">
-        {{ isSubmitting ? 'Invio in corso...' : 'Pubblica' }}
+      <button type="submit" [disabled]="isSubmitting()" class="submit-btn">
+        {{ isSubmitting() ? 'Invio in corso...' : 'Pubblica' }}
       </button>
-      @if (commentError) {
+      @if (commentError()) {
       <div class="error-message"> (Compila correttamente il campo)</div>
       }
     </form>
@@ -35,13 +35,13 @@
   }
 
   <div class="comments-list">
-    @if (comments.length === 0) {
+    @if (comments().length === 0) {
     <div class="no-comments">
       <p>Non ci sono ancora commenti. Sii il primo a commentare!</p>
     </div>
     }
 
-    @for (comment of comments; track comment.id) {
+    @for (comment of comments(); track comment.id) {
     <div class="comment-item">
       <div class="comment-header">
         <span class="username">{{ comment.createdBy }}</span>

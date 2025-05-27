@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { Meme } from '../../models/meme.model';
 import { AuthService } from '../../../core/services/auth.service';
@@ -20,9 +20,7 @@ export class MemeCardComponent {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
-  get isLoggedIn(): boolean {
-    return this.authService.isLoggedIn();
-  }
+  readonly isLoggedIn = computed(() => this.authService.isLoggedIn());
 
   viewMeme(): void {
     this.router.navigate(['/meme', this.meme.id]);

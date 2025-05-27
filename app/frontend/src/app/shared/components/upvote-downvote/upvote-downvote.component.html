@@ -1,15 +1,15 @@
 <div class="vote-container">
-  <button class="vote-btn upvote" [class.active]="userVote === 'up'" (click)="upvote()" [disabled]="!isLoggedIn || disabledUp">
+  <button class="vote-btn upvote" [class.active]="userVote() === 'up'" (click)="upvote()" [disabled]="!isLoggedIn() || disabledUp()">
     <i class="fas fa-arrow-up"></i>
-    <span class="vote-count">{{ upvotes }}</span>
+    <span class="vote-count">{{ upvotesSignal() }}</span>
   </button>
 
   <div class="vote-score">
-    {{ upvotes - downvotes }}
+    {{ upvotesSignal() - downvotesSignal() }}
   </div>
 
-  <button class="vote-btn downvote" [class.active]="userVote === 'down'" (click)="downvote()" [disabled]="!isLoggedIn || disabledDown">
+  <button class="vote-btn downvote" [class.active]="userVote() === 'down'" (click)="downvote()" [disabled]="!isLoggedIn() || disabledDown()">
     <i class="fas fa-arrow-down"></i>
-    <span class="vote-count">{{ downvotes }}</span>
+    <span class="vote-count">{{ downvotesSignal() }}</span>
   </button>
 </div>

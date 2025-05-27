@@ -1,5 +1,17 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  Component,
+  inject,
+  Input,
+  OnInit,
+  signal,
+  computed,
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Comment } from '../../models/comment.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommentService } from '../../../core/services/comment.service';
@@ -10,15 +22,25 @@ import { RouterModule } from '@angular/router';
   templateUrl: './comment-section.component.html',
   standalone: true,
   imports: [ReactiveFormsModule, RouterModule],
-  styleUrls: ['./comment-section.component.css']
+  styleUrls: ['./comment-section.component.css'],
 })
 export class CommentSectionComponent implements OnInit {
   @Input() memeId!: number;
-  comments: Comment[] = [];
+
+  private readonly _comments = signal<Comment[]>([]);
+  private readonly _isSubmitting = signal<boolean>(false);
+  private readonly _commentError = signal<boolean>(false);
+  private readonly _error = signal<string | null>(null);
+
+  readonly comments = this._comments.asReadonly();
+  readonly isSubmitting = this._isSubmitting.asReadonly();
+  readonly commentError = this._commentError.asReadonly();
+  readonly error = this._error.asReadonly();
+
+  readonly isLoggedIn = computed(() => this.authService.isLoggedIn());
+  readonly hasComments = computed(() => this._comments().length > 0);
+
   commentForm: FormGroup;
-  isSubmitting = false;
-  commentError = false;
-  error: string | null = null;
 
   private readonly commentService = inject(CommentService);
   private readonly authService = inject(AuthService);
@@ -26,7 +48,7 @@ export class CommentSectionComponent implements OnInit {
 
   constructor() {
     this.commentForm = this.fb.group({
-      content: ['', [Validators.required, Validators.maxLength(500)]]
+      content: ['', [Validators.required, Validators.maxLength(500)]],
     });
   }
 
@@ -34,29 +56,30 @@ export class CommentSectionComponent implements OnInit {
     this.loadComments();
   }
 
-  get isLoggedIn(): boolean {
-    return this.authService.isLoggedIn();
+  get content() {
+    return this.commentForm.get('content');
   }
-
-  get content() { return this.commentForm.get('content'); }
 
   async loadComments(): Promise<void> {
     try {
-      this.comments = (await this.commentService.getComments(this.memeId)).comments;
+      const response = await this.commentService.getComments(this.memeId);
+      this._comments.set(response.comments);
+      this._error.set(null);
     } catch (error) {
       console.error('Error loading comments:', error);
-      this.error = 'Failed to load comments';
+      this._error.set('Failed to load comments');
     }
   }
 
   async submitComment(): Promise<void> {
-    if (this.commentForm.invalid || this.isSubmitting) {
-      this.commentError = true;
+    if (this.commentForm.invalid || this._isSubmitting()) {
+      this._commentError.set(true);
       return;
     }
 
-    this.isSubmitting = true;
-    this.error = null;
+    this._isSubmitting.set(true);
+    this._error.set(null);
+    this._commentError.set(false);
 
     try {
       await this.commentService.addComment(this.memeId, this.content!.value);
@@ -64,9 +87,9 @@ export class CommentSectionComponent implements OnInit {
       this.commentForm.reset();
     } catch (error) {
       console.error('Error adding comment:', error);
-      this.error = 'Failed to add comment';
+      this._error.set('Failed to add comment');
     } finally {
-      this.isSubmitting = false;
+      this._isSubmitting.set(false);
     }
   }
 

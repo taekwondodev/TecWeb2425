@@ -1,11 +1,11 @@
 <div class="meme-details-container">
-  @if (isLoading) {
+  @if (isLoading()) {
   <div class="loading-indicator">
     <p>Caricamento del meme in corso...</p>
   </div>
   }
 
-  @if (!isLoading && error) {
+  @if (!isLoading() && error()) {
   <div class="error-message">
     <h2>Errore</h2>
     <p>Impossibile caricare il meme richiesto. Verifica che l'ID sia corretto o riprova più tardi.</p>
@@ -13,28 +13,28 @@
   </div>
   }
 
-  @if (!isLoading && meme) {
+  @if (!isLoading() && meme()) {
   <div class="meme-content">
     <div class="meme-header">
-      <h1 class="meme-title">{{ meme.tag }}</h1>
+      <h1 class="meme-title">{{ meme()!.tag }}</h1>
     </div>
 
     <div class="meme-media">
-      <img [src]="'/data/uploads/' + meme.imagePath" [alt]="meme.tag" class="meme-image">
+      <img [src]="'/data/uploads/' + meme()!.imagePath" [alt]="meme()!.tag" class="meme-image">
     </div>
 
     <div class="meme-info">
       <div class="upload-info">
-        <p class="upload-date">Caricato il {{ meme.createdAt | date:'dd/MM/yyyy' }}</p>
+        <p class="upload-date">Caricato il {{ meme()!.createdAt | date:'dd/MM/yyyy' }}</p>
       </div>
 
       <div class="vote-actions">
-        <app-upvote-downvote [memeId]="meme.id" [upvotes]="meme.upvotes"
-          [downvotes]="meme.downvotes"></app-upvote-downvote>
+        <app-upvote-downvote [memeId]="meme()!.id" [upvotes]="meme()!.upvotes"
+          [downvotes]="meme()!.downvotes"></app-upvote-downvote>
       </div>
     </div>
 
-    <app-comment-section [memeId]="meme.id"></app-comment-section>
+    <app-comment-section [memeId]="meme()!.id"></app-comment-section>
   </div>
   }
 </div>

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -18,12 +18,22 @@ export class LoginComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly flashService = inject(FlashService);
 
+  private readonly _loading = signal<boolean>(false);
+  private readonly _submitted = signal<boolean>(false);
+  private readonly _autofilled = signal<boolean>(false);
+  private readonly _error = signal<string>('');
+  private readonly _returnUrl = signal<string>('/');
+
+  readonly loading = this._loading.asReadonly();
+  readonly submitted = this._submitted.asReadonly();
+  readonly autofilled = this._autofilled.asReadonly();
+  readonly error = this._error.asReadonly();
+  readonly returnUrl = this._returnUrl.asReadonly();
+
+  readonly isLoggedIn = computed(() => this.authService.isLoggedIn());
+  readonly canSubmit = computed(() => !this._loading() && this.loginForm?.valid);
+
   loginForm!: FormGroup;
-  loading = false;
-  submitted = false;
-  autofilled = false;
-  error = '';
-  returnUrl: string = '/';
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
@@ -42,7 +52,7 @@ export class LoginComponent implements OnInit {
         username: state.username,
         password: state.password
       });
-      this.autofilled = true;
+      this._autofilled.set(true);
     }
   }
 
@@ -51,14 +61,14 @@ export class LoginComponent implements OnInit {
   get password() { return this.loginForm.get('password'); }
 
   async onSubmit(): Promise<void> {
-    this.submitted = true;
-    this.error = '';
+    this._submitted.set(true);
+    this._error.set('');
 
     if (this.loginForm.invalid) {
       return;
     }
 
-    this.loading = true;
+    this._loading.set(true);
 
     try {
       const loginRequest: LoginRequest = {
@@ -67,12 +77,12 @@ export class LoginComponent implements OnInit {
       };
 
       await this.authService.login(loginRequest);
-      await this.router.navigate([this.returnUrl]);
+      await this.router.navigate([this.returnUrl()]);
       this.flashService.showMessage('Login avvenuto con successo!', 'login');
     } catch (error: any) {
-      this.error = error.error?.message ?? 'Login failed';
+      this._error.set(error.error?.message ?? 'Login failed');
     } finally {
-      this.loading = false;
+      this._loading.set(false);
     }
   }
 

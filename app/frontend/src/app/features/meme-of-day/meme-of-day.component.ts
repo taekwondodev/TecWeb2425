@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { MemeService } from '../../core/services/meme.service';
 import { Meme } from '../../shared/models/meme.model';
 import { UpvoteDownvoteComponent } from "../../shared/components/upvote-downvote/upvote-downvote.component";
@@ -13,8 +13,23 @@ import { DatePipe } from '@angular/common';
   styleUrls: ['./meme-of-day.component.css']
 })
 export class MemeOfDayComponent implements OnInit {
-  memeOfDay: Meme | null = null;
-  isLoading = true;
+  private readonly _memeOfDay = signal<Meme | null>(null);
+  private readonly _isLoading = signal<boolean>(true);
+  private readonly _error = signal<boolean>(false);
+
+  readonly memeOfDay = this._memeOfDay.asReadonly();
+  readonly isLoading = this._isLoading.asReadonly();
+  readonly error = this._error.asReadonly();
+
+  readonly hasValidMeme = computed(() => {
+    const meme = this._memeOfDay();
+    return meme !== null && !this._error();
+  });
+
+  readonly memeTitle = computed(() => {
+    const meme = this._memeOfDay();
+    return meme ? `Meme del giorno: ${meme.tag}` : 'Meme del Giorno';
+  });
 
   private readonly memeService = inject(MemeService);
 
@@ -23,15 +38,19 @@ export class MemeOfDayComponent implements OnInit {
   }
 
   async loadMemeOfDay(): Promise<void> {
-    this.isLoading = true;
+    this._isLoading.set(true);
+    this._error.set(false);
+
     try {
-      this.memeOfDay = await this.memeService.getMemeOfTheDay();
+      const meme = await this.memeService.getMemeOfTheDay();
+      this._memeOfDay.set(meme);
     }
     catch(error){
       console.error('Error loading meme of the day:', error);
+      this._error.set(true);
     }
     finally {
-      this.isLoading = false;
+      this._isLoading.set(false);
     }
   }
 

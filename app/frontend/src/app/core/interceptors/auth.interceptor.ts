@@ -3,8 +3,6 @@ import { HttpRequest, HttpEvent, HttpErrorResponse, HttpInterceptorFn, HttpHandl
 import { catchError, from, Observable, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
-let isRefreshing = false;
-
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   
@@ -30,24 +28,18 @@ function addToken(request: HttpRequest<unknown>, authService: AuthService): Http
 }
 
 function handle401Error(request: HttpRequest<unknown>, next: HttpHandlerFn, authService: AuthService): Observable<HttpEvent<unknown>> {
-  if (!authService.refreshTokenInProgress) {
-    authService.refreshTokenInProgress = true;
+  if (!authService.refreshTokenInProgress()) {
     
     return from(authService.refreshToken()).pipe(
       switchMap(() => {
-        authService.refreshTokenInProgress = false;
         return next(addToken(request, authService));
       }),
       catchError((refreshError) => {
-        authService.refreshTokenInProgress = false;
         authService.logout();
         return throwError(() => refreshError);
       })
     );
   } else {
-    // Se il refresh è già in corso, aspetta e poi ritenta
-    return authService.tokenRefreshed$.pipe(
-      switchMap(() => next(addToken(request, authService)))
-    );
+    return throwError(() => new Error('Refresh token in progress'));
   }
 }

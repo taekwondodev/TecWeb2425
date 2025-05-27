@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MemeService } from '../../core/services/meme.service';
@@ -11,15 +11,21 @@ import { MemeService } from '../../core/services/meme.service';
   styleUrls: ['./meme-upload.component.css']
 })
 export class MemeUploadComponent {
-  uploadForm: FormGroup;
-  isSubmitting = false;
-  uploadError: string | null = null;
-  imagePreview: string | ArrayBuffer | null = null;
-  tag = '';
+  private readonly _isSubmitting = signal<boolean>(false);
+  private readonly _uploadError = signal<string | null>(null);
+  private readonly _imagePreview = signal<string | ArrayBuffer | null>(null);
+  private readonly _tag = signal<string>('');
 
-  private readonly fb: FormBuilder = inject(FormBuilder);
-  private readonly memeService: MemeService = inject(MemeService);
-  private readonly router: Router = inject(Router);
+  readonly isSubmitting = this._isSubmitting.asReadonly();
+  readonly uploadError = this._uploadError.asReadonly();
+  readonly imagePreview = this._imagePreview.asReadonly();
+  readonly tag = this._tag.asReadonly();
+
+  uploadForm: FormGroup;
+
+  private readonly fb = inject(FormBuilder);
+  private readonly memeService = inject(MemeService);
+  private readonly router = inject(Router);
 
   constructor() {
     this.uploadForm = this.fb.group({
@@ -35,44 +41,40 @@ export class MemeUploadComponent {
     if (file) {
       const imageTypeRegex = /image\/(jpeg|png|gif)/;
       if (!imageTypeRegex.exec(file.type)) {
-        this.uploadError = 'Formato file non supportato. Usa JPG, PNG o GIF.';
+        this._uploadError.set('Formato file non supportato. Usa JPG, PNG o GIF.');
         input.value = ''; // Resetta l'input file
         return;
       }
 
       if (file.size > 10 * 1024 * 1024) {
-        this.uploadError = 'L\'immagine è troppo grande (max 10MB)';
+        this._uploadError.set('L\'immagine è troppo grande (max 10MB)');
         input.value = '';
         return;
       }
 
       this.uploadForm.patchValue({ image: file });
       this.uploadForm.get('image')?.updateValueAndValidity();
-      this.uploadError = null;
+      this._uploadError.set(null);
 
       // Preview image
       const reader = new FileReader();
-      reader.onload = () => {
-        this.imagePreview = reader.result;
+      reader.onload = (e) => {
+        this._imagePreview.set(e.target?.result ?? null);
       };
       reader.readAsDataURL(file);
     }
   }
 
   async uploadMeme(): Promise<void> {
-    if (this.uploadForm.invalid || this.isSubmitting) {
+    if (this.uploadForm.invalid || this._isSubmitting()) {
       this.markFormGroupTouched(this.uploadForm);
       return;
     }
 
-    this.isSubmitting = true;
-    this.uploadError = null;
+    this._isSubmitting.set(true);
+    this._uploadError.set(null);
 
     try {
-      const formData = new FormData();
-      formData.append('image', this.uploadForm.get('image')?.value);
-      formData.append('tag', this.uploadForm.get('tag')?.value);
-
       const meme = await this.memeService.uploadMeme(
         this.uploadForm.get('image')?.value,
         this.uploadForm.get('tag')?.value
@@ -81,18 +83,16 @@ export class MemeUploadComponent {
       await this.router.navigate(['/meme', meme.memeId]);
     } catch (error: any) {
       console.error('Upload error:', error);
-      this.uploadError = error.message ?? 'Errore durante il caricamento. Riprova.';
+      this._uploadError.set(error.message ?? 'Errore durante il caricamento. Riprova.');
     } finally {
-      this.isSubmitting = false;
+      this._isSubmitting.set(false);
     }
   }
 
   private markFormGroupTouched(formGroup: FormGroup): void {
-    Object.values(formGroup.controls).forEach(control => {
-      control.markAsTouched();
-      if (control instanceof FormGroup) {
-        this.markFormGroupTouched(control);
-      }
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      control?.markAsTouched();
     });
   }
 }

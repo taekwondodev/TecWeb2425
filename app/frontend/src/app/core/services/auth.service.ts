@@ -1,28 +1,51 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, computed, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
-import { LoginRequest, RegisterRequest, AuthResponse } from '../../shared/models/auth.model';
+import { firstValueFrom } from 'rxjs';
+import {
+  LoginRequest,
+  RegisterRequest,
+  AuthResponse,
+} from '../../shared/models/auth.model';
 import { environment } from '../../../environments/environment';
 import { Router } from '@angular/router';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private readonly API_URL = `${environment.apiUrl}/auth`;
-  private readonly accessTokenSubject = new BehaviorSubject<string | null>(null);
-  private readonly authStatus = new BehaviorSubject<boolean>(false);
-  refreshTokenInProgress = false;
-  private readonly tokenRefreshedSource = new BehaviorSubject<void>(undefined);
-  tokenRefreshed$ = this.tokenRefreshedSource.asObservable();
-  authStatus$ = this.authStatus.asObservable();
 
-  constructor(private readonly http: HttpClient, private readonly router: Router) {
-    const isLoggedIn = this.isLoggedIn();
-    this.authStatus.next(isLoggedIn);
-    if (isLoggedIn) {
-      this.accessTokenSubject.next(this.getAccessToken());
+  private readonly _accessToken = signal<string | null>(null);
+  private readonly _isLoggedIn = signal<boolean>(false);
+  private readonly _refreshTokenInProgress = signal<boolean>(false);
+
+  readonly accessToken = this._accessToken.asReadonly();
+  readonly isLoggedIn = this._isLoggedIn.asReadonly();
+  readonly refreshTokenInProgress = this._refreshTokenInProgress.asReadonly();
+
+  readonly authStatus = computed(() => this._isLoggedIn());
+
+  constructor(
+    private readonly http: HttpClient,
+    private readonly router: Router
+  ) {
+    const token = this.getAccessToken();
+    if (token) {
+      this._accessToken.set(token);
+      this._isLoggedIn.set(true);
     }
+
+    effect(() => {
+      const token = this._accessToken();
+      const isLoggedIn = this._isLoggedIn();
+
+      if (token && isLoggedIn) {
+        localStorage.setItem('accessToken', token);
+      } else {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+      }
+    });
   }
 
   async login(loginData: LoginRequest): Promise<AuthResponse> {
@@ -57,45 +80,44 @@ export class AuthService {
 
   async refreshToken(): Promise<AuthResponse> {
     try {
+      this._refreshTokenInProgress.set(true);
+
       const refreshToken = localStorage.getItem('refreshToken');
       if (!refreshToken) {
         throw new Error('No refresh token available');
       }
 
       const response = await firstValueFrom(
-        this.http.post<AuthResponse>(`${this.API_URL}/refresh`, { refreshToken })
+        this.http.post<AuthResponse>(`${this.API_URL}/refresh`, {
+          refreshToken,
+        })
       );
 
       this.storeTokens(response);
-      this.tokenRefreshedSource.next();
       return response;
     } catch (error) {
       this.logout();
       throw error;
+    } finally {
+      this._refreshTokenInProgress.set(false);
     }
   }
 
   /***************************************************************************************/
 
   private storeTokens(response: AuthResponse): void {
+    this._accessToken.set(response.accessToken);
+    this._isLoggedIn.set(true);
     localStorage.setItem('accessToken', response.accessToken);
     localStorage.setItem('refreshToken', response.refreshToken);
-    this.accessTokenSubject.next(response.accessToken);
-    this.authStatus.next(true);
   }
 
   private clearTokens(): void {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    this.accessTokenSubject.next(null);
-    this.authStatus.next(false);
+    this._accessToken.set(null);
+    this._isLoggedIn.set(false);
   }
 
   getAccessToken(): string | null {
     return localStorage.getItem('accessToken');
-  }
-
-  isLoggedIn(): boolean {
-    return !!this.getAccessToken();
   }
 }

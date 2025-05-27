@@ -13,18 +13,18 @@
 
     <main class="memes-grid">
       <h2 class="section-title">
-        {{ searchQuery ? `Risultati per: "${searchQuery}"` : 'Scopri i Meme' }}
+        {{ searchQuery() ? `Risultati per: "${searchQuery()}"` : 'Scopri i Meme' }}
       </h2>
 
-      @if (isLoading) {
+      @if (isLoading()) {
       <div class="loading-indicator">
         <p>Caricamento meme in corso...</p>
       </div>
       }
 
-      @if (!isLoading && (!memeResponse || memeResponse.memes === null || memeResponse.memes.length === 0)) {
+      @if (!isLoading() && (!memeResponse() || memeResponse()?.memes === null || memeResponse()?.memes?.length === 0)) {
       <div class="no-memes-message">
-        @if (searchQuery || activeFilters.tags.length > 0) {
+        @if (searchQuery() || activeFilters().tags.length > 0) {
         <h3>Nessun risultato trovato</h3>
         } @else {
         <p>Nessun meme disponibile al momento.</p>
@@ -33,15 +33,15 @@
       }
 
       <div class="memes-grid-container">
-        @for (meme of memeResponse?.memes; track meme.id) {
+        @for (meme of memeResponse()?.memes; track meme.id) {
         <div class="meme-grid-item">
           <app-meme-card [meme]="meme"></app-meme-card>
         </div>
         }
       </div>
 
-      @if (memeResponse && memeResponse.totalPages > 1) {
-      <app-paginator [currentPage]="currentPage" [totalPages]="memeResponse.totalPages || 1"
+      @if (memeResponse() && memeResponse()?.totalPages && memeResponse()!.totalPages > 1) {
+      <app-paginator [currentPage]="currentPage()" [totalPages]="memeResponse()!.totalPages"
         (pageChange)="onPageChange($event)"></app-paginator>
       }
 

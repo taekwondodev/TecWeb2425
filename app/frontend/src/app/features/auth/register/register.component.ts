@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -16,10 +16,18 @@ export class RegisterComponent {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
+  private readonly _loading = signal<boolean>(false);
+  private readonly _submitted = signal<boolean>(false);
+  private readonly _error = signal<string>('');
+
+  readonly loading = this._loading.asReadonly();
+  readonly submitted = this._submitted.asReadonly();
+  readonly error = this._error.asReadonly();
+
+  readonly canSubmit = computed(() => !this._loading() && this.registerForm?.valid);
+  readonly showValidationErrors = computed(() => this._submitted() && this.registerForm?.invalid);
+
   registerForm!: FormGroup;
-  loading = false;
-  submitted = false;
-  error = '';
 
   constructor() {
     this.registerForm = this.formBuilder.nonNullable.group({
@@ -34,14 +42,14 @@ export class RegisterComponent {
   get password() { return this.registerForm.get('password'); }
 
   async onSubmit(): Promise<void> {
-    this.submitted = true;
-    this.error = '';
+    this._submitted.set(true);
+    this._error.set('');
 
     if (this.registerForm.invalid) {
       return;
     }
 
-    this.loading = true;
+    this._loading.set(true);
     try {
       const registerRequest: RegisterRequest = {
         username: this.username!.value,
@@ -60,9 +68,9 @@ export class RegisterComponent {
         }
       );
     } catch (error: any) {
-      this.error = error.error?.message ?? 'Registrazione fallita';
+      this._error.set(error.error?.message ?? 'Registrazione fallita');
     } finally {
-      this.loading = false;
+      this._loading.set(false);
     }
   }
 

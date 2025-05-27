@@ -1,14 +1,14 @@
 <div class="paginator">
-  @for (page of visiblePages; track page) {
+  @for (page of visiblePages(); track page) {
     <button 
       (click)="changePage(page)"
-      [class.active]="page === currentPage"
-      [disabled]="page === currentPage"
+      [class.active]="page === currentPageSignal()"
+      [disabled]="page === currentPageSignal()"
     >
       {{ page }}
     </button>
   }
-  @if (showEllipsis) {
+  @if (showEllipsis()) {
     <span>...</span>
   }
 </div>

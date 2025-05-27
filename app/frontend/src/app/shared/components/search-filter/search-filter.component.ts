@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, inject } from '@angular/core';
+import { Component, Output, EventEmitter, inject, signal, effect } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
@@ -6,13 +6,15 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
   templateUrl: './search-filter.component.html',
   standalone: true,
   imports: [ReactiveFormsModule],
-  styleUrls: ['./search-filter.component.css']
+  styleUrls: ['./search-filter.component.css'],
 })
 export class SearchFilterComponent {
   @Output() filterChange = new EventEmitter<any>();
 
+  private readonly _searchQuery = signal<string>('');
+  readonly searchQuery = this._searchQuery.asReadonly();
+
   filterForm: FormGroup;
-  searchQuery = '';
 
   sortOptions = [
     { value: 'newest', label: 'Più recenti' },
@@ -28,27 +30,30 @@ export class SearchFilterComponent {
       sortBy: ['newest'],
       tags: [''],
       dateFrom: [''],
-      dateTo: ['']
+      dateTo: [''],
     });
+
+    effect(() => {});
   }
 
   applyFilters(): void {
     const formValue = this.filterForm.value;
-    
+
     const filters = {
       sortBy: formValue.sortBy,
-      tags: formValue.tags 
-            ? formValue.tags.split(',')
-                .map((t: string) => t.trim())
-                .filter((t: string) => t.length > 0 && t.length <= 50)
-                .slice(0, 10)
-            : [],
-      dateFrom: formValue.dateFrom 
-        ? new Date(formValue.dateFrom).toISOString().split('T')[0] 
+      tags: formValue.tags
+        ? formValue.tags
+            .split(',')
+            .map((t: string) => t.trim())
+            .filter((t: string) => t.length > 0 && t.length <= 50)
+            .slice(0, 10)
+        : [],
+      dateFrom: formValue.dateFrom
+        ? new Date(formValue.dateFrom).toISOString().split('T')[0]
         : '',
-      dateTo: formValue.dateTo 
-        ? new Date(formValue.dateTo).toISOString().split('T')[0] 
-        : ''
+      dateTo: formValue.dateTo
+        ? new Date(formValue.dateTo).toISOString().split('T')[0]
+        : '',
     };
 
     this.filterChange.emit(filters);
@@ -59,7 +64,7 @@ export class SearchFilterComponent {
       sortBy: 'newest',
       tags: '',
       dateFrom: '',
-      dateTo: ''
+      dateTo: '',
     });
     this.applyFilters();
   }

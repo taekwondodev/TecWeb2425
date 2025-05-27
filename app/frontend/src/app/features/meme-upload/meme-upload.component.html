@@ -5,10 +5,10 @@
     <form [formGroup]="uploadForm" (ngSubmit)="uploadMeme()" class="upload-form">
       <div class="form-group">
         <label for="image">Immagine</label>
-        <div class="image-upload-area" [class.has-preview]="imagePreview">
-          @if (imagePreview) {
+        <div class="image-upload-area" [class.has-preview]="imagePreview()">
+          @if (imagePreview()) {
           <div class="image-preview">
-            <img [src]="imagePreview" alt="Anteprima">
+            <img [src]="imagePreview()" alt="Anteprima">
             <br />
             <button type="button" class="change-image-btn" (click)="fileInput.click()">
               Cambia immagine
@@ -46,15 +46,15 @@
         }
       </div>
 
-      @if (uploadError) {
+      @if (uploadError()) {
       <div class="error-alert">
-        {{ uploadError }}
+        {{ uploadError() }}
       </div>
       }
 
       <div class="form-actions">
-        <button type="submit" class="submit-btn" [disabled]="isSubmitting">
-          @if (!isSubmitting) {
+        <button type="submit" class="submit-btn" [disabled]="isSubmitting()">
+          @if (!isSubmitting()) {
           <span>Pubblica Meme</span>
           } @else {
           <span>Caricamento in corso...</span>

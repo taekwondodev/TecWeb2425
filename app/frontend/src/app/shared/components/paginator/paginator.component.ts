@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, computed, signal } from '@angular/core';
 
 @Component({
   selector: 'app-paginator',
@@ -8,15 +8,26 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   styleUrls: ['./paginator.component.css']
 })
 export class PaginatorComponent {
-  @Input() currentPage = 1;
-  @Input() totalPages = 1;
+  @Input() set currentPage(value: number) {
+    this._currentPage.set(value);
+  }
+  @Input() set totalPages(value: number) {
+    this._totalPages.set(value);
+  }
   @Output() pageChange = new EventEmitter<number>();
 
-  get visiblePages(): number[] {
+  private readonly _currentPage = signal(1);
+  private readonly _totalPages = signal(1);
+
+  readonly currentPageSignal = this._currentPage.asReadonly();
+
+  readonly visiblePages = computed(() => {
+    const currentPage = this._currentPage();
+    const totalPages = this._totalPages();
     const pages = [];
     const maxVisible = 5;
-    let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
-    let end = Math.min(this.totalPages, start + maxVisible - 1);
+    let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let end = Math.min(totalPages, start + maxVisible - 1);
     
     if (end - start + 1 < maxVisible) {
       start = Math.max(1, end - maxVisible + 1);
@@ -27,14 +38,18 @@ export class PaginatorComponent {
     }
     
     return pages;
-  }
+  });
 
-  get showEllipsis(): boolean {
-    return this.totalPages > 5 && this.currentPage < this.totalPages - 2;
-  }
+  readonly showEllipsis = computed(() => {
+    const totalPages = this._totalPages();
+    const currentPage = this._currentPage();
+    return totalPages > 5 && currentPage < totalPages - 2;
+  });
 
   changePage(page: number): void {
-    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
+    const currentPage = this._currentPage();
+    const totalPages = this._totalPages();
+    if (page >= 1 && page <= totalPages && page !== currentPage) {
       this.pageChange.emit(page);
     }
   }

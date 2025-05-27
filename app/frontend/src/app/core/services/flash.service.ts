@@ -1,5 +1,4 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 
 export interface FlashState {
   message: string;
@@ -10,11 +9,11 @@ export interface FlashState {
 @Injectable({ providedIn: 'root' })
 export class FlashService {
   private timeoutId: number | null = null;
-  private readonly _state = new BehaviorSubject<FlashState>({
+  private readonly _flashState = signal<FlashState>({
     message: '',
     visible: false
   });
-  readonly state$ = this._state.asObservable();
+  readonly flashState = this._flashState.asReadonly();
 
   showMessage(
     message: string, 
@@ -22,12 +21,18 @@ export class FlashService {
     duration = 3000
   ): void {
     this.clearTimeout();
-    this._state.next({ message, visible: true, type });
+    
+    this._flashState.set({ 
+      message, 
+      visible: true, 
+      type 
+    });
+    
     this.timeoutId = window.setTimeout(() => {
-      this._state.next({ 
-        ...this._state.value, 
+      this._flashState.update(current => ({ 
+        ...current, 
         visible: false 
-      });
+      }));
     }, duration);
   }
 

@@ -7,18 +7,19 @@
     </div>
 
     <div class="search-bar">
-      <input type="text" id="search"[(ngModel)]="searchQuery" placeholder="Cerca meme per tag..." (keyup.enter)="search()">
+      <input type="text" id="search" [value]="searchQuery()" (input)="updateSearchQuery($event)"
+        placeholder="Cerca meme per tag..." (keyup.enter)="search()">
       <button (click)="search()">
         <i class="fas fa-search"></i>
       </button>
     </div>
 
-    <nav class="main-nav" [class.open]="isMenuOpen">
+    <nav class="main-nav" [class.open]="isMenuOpen()">
       <ul>
         <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
         <li><a routerLink="/meme-of-day" routerLinkActive="active">Meme del giorno</a></li>
 
-        @if (isLoggedIn) {
+        @if (isLoggedIn()) {
         <li><a routerLink="/upload" routerLinkActive="active">Carica Meme</a></li>
         <li><a (click)="logout()">Logout</a></li>
         } @else {
@@ -29,7 +30,7 @@
     </nav>
 
     <button class="menu-toggle" (click)="toggleMenu()">
-      <i class="fas" [class]="'fas ' + (isMenuOpen ? 'fa-times' : 'fa-bars')"></i>
+      <i class="fas" [class]="'fas ' + (isMenuOpen() ? 'fa-times' : 'fa-bars')"></i>
     </button>
   </div>
 </header>

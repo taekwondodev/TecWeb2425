@@ -1,13 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FlashService } from '../../../core/services/flash.service';
-import { Subject, takeUntil } from 'rxjs';
 import { animate, style, transition, trigger } from '@angular/animations';
 
 @Component({
   selector: 'app-flash-message',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './flash-message.component.html',
   styleUrls: ['./flash-message.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,16 +22,7 @@ import { animate, style, transition, trigger } from '@angular/animations';
   ]
 })
 
-export class FlashMessageComponent implements OnDestroy{
-  private readonly destroy$ = new Subject<void>();
+export class FlashMessageComponent{
   private readonly flashService = inject(FlashService);
-  
-  flashState$ = this.flashService.state$.pipe(
-    takeUntil(this.destroy$)
-  );
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  readonly flashState = this.flashService.flashState;
 }

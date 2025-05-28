@@ -74,7 +74,6 @@ export class UpvoteDownvoteComponent {
   private async loadUserVote(): Promise<void> {
     try {
       const vote = await this.memeService.getUserVote(this.memeId);
-      console.log('Loaded vote:', vote);
       this._userVote.set(this.mapVoteValueToType(vote));
     } catch (error) {
       console.error('Error loading user vote:', error);
@@ -83,7 +82,15 @@ export class UpvoteDownvoteComponent {
   }
 
   private mapVoteValueToType(vote: number): VoteType {
-    return vote === 1 ? 'up' : vote === -1 ? 'down' : null;
+    if (vote === 1) {
+      return 'up';
+    }
+
+    if (vote === -1) {
+      return 'down';
+    }
+
+    return null;
   }
 
   async upvote(): Promise<void> {
@@ -142,7 +149,12 @@ export class UpvoteDownvoteComponent {
       }
     }
 
-    this._userVote.set(response.removed ? null : isUpvote ? 'up' : 'down');
+    if (response.removed) {
+      this._userVote.set(null);
+    } else {
+      const newVoteType = isUpvote ? 'up' : 'down';
+      this._userVote.set(newVoteType);
+    }
   }
 
   private resetVoteState(): void {

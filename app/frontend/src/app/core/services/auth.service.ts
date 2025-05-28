@@ -62,15 +62,11 @@ export class AuthService {
   }
 
   async register(registerData: RegisterRequest): Promise<AuthResponse> {
-    try {
-      const response = await firstValueFrom(
-        this.http.post<AuthResponse>(`${this.API_URL}/register`, registerData)
-      );
-      this.router.navigate(['/login']);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await firstValueFrom(
+      this.http.post<AuthResponse>(`${this.API_URL}/register`, registerData)
+    );
+    this.router.navigate(['/login']);
+    return response;
   }
 
   logout(): void {
@@ -93,7 +89,7 @@ export class AuthService {
         })
       );
 
-      this.storeTokens(response);
+      this.storeRefreshedTokens(response, refreshToken);
       return response;
     } catch (error) {
       this.logout();
@@ -104,6 +100,21 @@ export class AuthService {
   }
 
   /***************************************************************************************/
+
+  private storeRefreshedTokens(
+    response: AuthResponse,
+    existingRefreshToken: string
+  ): void {
+    this._accessToken.set(response.accessToken);
+    this._isLoggedIn.set(true);
+    localStorage.setItem('accessToken', response.accessToken);
+
+    if (response.refreshToken) {
+      localStorage.setItem('refreshToken', response.refreshToken);
+    } else {
+      localStorage.setItem('refreshToken', existingRefreshToken);
+    }
+  }
 
   private storeTokens(response: AuthResponse): void {
     this._accessToken.set(response.accessToken);

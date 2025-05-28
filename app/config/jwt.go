@@ -24,7 +24,7 @@ func (j *JWT) GenerateJWT(username string, email string, id int) (string, string
 	accessClaims := Claims{
 		Username: username,
 		Email:    email,
-		Id:       1,
+		Id:       id,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -35,7 +35,7 @@ func (j *JWT) GenerateJWT(username string, email string, id int) (string, string
 	refreshClaims := Claims{
 		Username: username,
 		Email:    email,
-		Id:       1,
+		Id:       id,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 7)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

@@ -5,7 +5,6 @@ import {
   signal,
   computed,
   effect,
-  DestroyRef,
 } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
@@ -52,7 +51,6 @@ export class UpvoteDownvoteComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly memeService = inject(MemeService);
-  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     effect(() => {
@@ -64,10 +62,6 @@ export class UpvoteDownvoteComponent {
       } else {
         this.resetVoteState();
       }
-    });
-
-    this.destroyRef.onDestroy(() => {
-      this.resetVoteState();
     });
   }
 

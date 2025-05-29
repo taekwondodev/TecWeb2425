@@ -1,8 +1,8 @@
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, UrlTree } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-export const authGuard = () => {
+export const authGuard = (): boolean | UrlTree => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
@@ -10,6 +10,5 @@ export const authGuard = () => {
     return true;
   }
 
-  router.navigate(['/login']);
-  return false;
+  return router.createUrlTree(['/login']);
 };

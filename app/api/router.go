@@ -47,18 +47,14 @@ func protectedCommentRoutes(commentController *controller.CommentController) {
 
 func publicMiddleware(h middleware.HandlerFunc) http.HandlerFunc {
 	return middleware.ErrorHandler(
-		middleware.LoggingMiddleware(
-			middleware.CorsMiddleware(h),
-		),
+		middleware.LoggingMiddleware(h),
 	)
 }
 
 func protectedMiddleware(h middleware.HandlerFunc) http.HandlerFunc {
 	return middleware.ErrorHandler(
 		middleware.LoggingMiddleware(
-			middleware.CorsMiddleware(
-				middleware.AuthMiddleware(h),
-			),
+			middleware.AuthMiddleware(h),
 		),
 	)
 }

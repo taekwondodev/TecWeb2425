@@ -50,10 +50,23 @@ UPLOAD_DIR=/data/uploads            # Directory for store images
 docker compose up app postgres flyway
 ```
 
-## Testing
+## Testing
 
 To run the test e2e:
 
 ```bash
 docker compose up e2e
 ```
+
+## ScreenShots
+
+<p align="center">
+   <img src="https://github.com/user-attachments/assets/49306887-4771-4d3e-9c23-751b9d181691" width="30%" style="margin: 5px;"/>
+   <img src="https://github.com/user-attachments/assets/927e596e-0239-46ca-9f51-8a7530313b34" width="30%" style="margin: 5px;">
+   <img src="https://github.com/user-attachments/assets/1cdfa494-a844-4fa1-86da-d0400a3d29a1" width="30%" style="margin: 5px;"/>
+</p>
+<p align="center"> 
+   <img src="https://github.com/user-attachments/assets/4dc4c49c-9656-4954-b26a-dc6306f51b27" width="30%" style="margin: 5px;"/> 
+   <img src="https://github.com/user-attachments/assets/47628166-8168-4113-9f82-8e5332d8822b" width="30%" style="margin: 5px;"/>
+   <img src="https://github.com/user-attachments/assets/174fd297-0631-4c33-bdb7-1065c2410153" width="30%" style="margin: 5px;"/>
+</p>

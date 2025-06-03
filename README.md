@@ -1,6 +1,9 @@
+<p align="center">
+   
 # Meme Museum
 
 This is a university project for the course of TecWeb2425
+</p>
 
 ## Technologies
 

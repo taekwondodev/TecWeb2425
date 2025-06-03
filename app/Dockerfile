@@ -15,6 +15,16 @@ COPY . .
 COPY --from=frontend-builder /app/dist ./static
 RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
+# Test E2E
+FROM node:23.11.0-alpine AS e2e-test
+WORKDIR /e2e
+COPY --from=frontend-builder /app/dist /e2e/dist
+COPY --from=go-builder /app/main /e2e/main
+COPY frontend/cypress.config.js frontend/package.json ./
+COPY frontend/cypress ./cypress
+RUN npm install && npm install cypress --save-dev
+CMD ["sh", "-c", "./main & sleep 5 && npm run cypress:run"]
+
 # Runtime
 FROM alpine:3.19 AS runtime
 WORKDIR /app

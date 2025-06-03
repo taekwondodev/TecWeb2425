@@ -90,8 +90,48 @@
             ],
             "scripts": []
           }
+        },
+        "cypress-run": {
+          "builder": "@cypress/schematic:cypress",
+          "options": {
+            "devServerTarget": "",
+            "baseUrl": "http://localhost:80"
+          },
+          "configurations": {
+            "production": {
+              "baseUrl": "http://localhost:80"
+            }
+          }
+        },
+        "cypress-open": {
+          "builder": "@cypress/schematic:cypress",
+          "options": {
+            "watch": true,
+            "headless": false,
+            "baseUrl": "http://localhost:80"
+          }
+        },
+        "e2e": {
+          "builder": "@cypress/schematic:cypress",
+          "options": {
+            "devServerTarget": "",
+            "baseUrl": "http://localhost:80",
+            "watch": true,
+            "headless": false
+          },
+          "configurations": {
+            "production": {
+              "baseUrl": "http://localhost:80"
+            }
+          }
         }
       }
     }
+  },
+  "cli": {
+    "schematicCollections": [
+      "@cypress/schematic",
+      "@schematics/angular"
+    ]
   }
 }

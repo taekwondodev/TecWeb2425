@@ -27,7 +27,7 @@ openssl rand -hex 32
 ```
 
 3. Create a file ".env" in the main directory and insert the value of your instances:
-   
+
 ```ini
 # Authentication
 JWT_SECRET=your_generated_hex_here  # Required for token signing
@@ -47,6 +47,13 @@ UPLOAD_DIR=/data/uploads            # Directory for store images
 4. Run the project with:
 
 ```bash
-docker compose up
+docker compose up app postgres flyway
 ```
 
+## Testing
+
+To run the test e2e:
+
+```bash
+docker compose up e2e
+```

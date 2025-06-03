@@ -1,6 +1,6 @@
 services:
   app:
-    build: 
+    build:
       context: ./app
       dockerfile: Dockerfile
     container_name: mememuseum
@@ -13,7 +13,25 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-  
+
+  e2e:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      target: e2e-test
+    container_name: e2e_tests
+    depends_on:
+      app:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      - CYPRESS_BASE_URL=http://app:80
+    volumes:
+      - ./app/frontend/cypress:/e2e/cypress
+      - ./app/frontend/cypress/videos:/e2e/cypress/videos
+      - ./app/frontend/cypress/screenshots:/e2e/cypress/screenshots
+
   flyway:
     image: flyway/flyway:latest
     container_name: flyway_tecweb
@@ -28,7 +46,7 @@ services:
       - ./migrations:/flyway/sql/migrations
     restart: "no"
     command: migrate
-  
+
   postgres:
     image: postgres:alpine
     container_name: postgres_tecweb

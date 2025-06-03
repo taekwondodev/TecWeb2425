@@ -4,3 +4,6 @@ postgres/ssl/*.key
 postgres/ssl/*.csr
 postgres/ssl/*.srl
 docker-compose-dev.yml
+app/static
+data/
+main

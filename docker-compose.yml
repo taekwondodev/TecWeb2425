@@ -14,26 +14,6 @@ services:
       postgres:
         condition: service_healthy
 
-  e2e:
-    build:
-      context: ./app
-      dockerfile: Dockerfile
-      target: e2e-test
-    container_name: e2e_tests
-    env_file:
-      - .env
-    depends_on:
-      postgres:
-        condition: service_healthy
-      app:
-        condition: service_started
-    environment:
-      - CYPRESS_BASE_URL=http://127.0.0.1:80
-    volumes:
-      - ./app/frontend/cypress:/e2e/cypress
-      - ./app/frontend/cypress/videos:/e2e/cypress/videos
-      - ./app/frontend/cypress/screenshots:/e2e/cypress/screenshots
-
   flyway:
     image: flyway/flyway:latest
     container_name: flyway_tecweb

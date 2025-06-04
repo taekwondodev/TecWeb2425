@@ -36,19 +36,7 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        launchOptions: {
-          executablePath: '/usr/bin/chromium-browser',
-          args: [
-            '--no-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-extensions',
-            '--disable-gpu',
-            '--no-first-run',
-          ],
-        },
-      },
+      use: { ...devices['Desktop Chrome'] },
     },
 
     /* Test against mobile viewports. */

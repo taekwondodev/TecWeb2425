@@ -7,22 +7,24 @@ test.describe('Login', () => {
 
   test('should display login form', async ({ page }) => {
     await expect(page.locator('app-login')).toBeVisible();
-    await expect(page.locator('.text-center')).toContainText(
-      'Accedi a Meme Museum'
-    );
+    await expect(
+      page.getByRole('heading', { name: 'Accedi a Meme Museum' })
+    ).toBeVisible();
     await expect(page.locator('#username')).toBeVisible();
     await expect(page.locator('#password')).toBeVisible();
-    await expect(page.locator('button[type="submit"]')).toContainText('Accedi');
+    await expect(page.locator('button.btn.btn-primary')).toContainText(
+      'Accedi'
+    );
   });
 
   test('should show validation errors for empty fields', async ({ page }) => {
     await expect(page.locator('form')).toBeVisible();
-    await page.click('button[type="submit"]');
+    await page.click('button.btn.btn-primary');
 
-    await expect(page.locator('.invalid-feedback')).toContainText(
+    await expect(page.locator('#username + .invalid-feedback')).toContainText(
       'Username richiesto'
     );
-    await expect(page.locator('.invalid-feedback')).toContainText(
+    await expect(page.locator('#password + .invalid-feedback')).toContainText(
       'Password richiesta'
     );
   });
@@ -55,9 +57,12 @@ test.describe('Login', () => {
       }
     });
 
+    await expect(page.locator('#username')).toBeVisible();
+    await expect(page.locator('#password')).toBeVisible();
+
     await page.fill('#username', 'taekwondodev');
     await page.fill('#password', 'provatecwen');
-    await page.click('button[type="submit"]');
+    await page.click('button.btn.btn-primary');
 
     await expect(page).toHaveURL('/');
     await expect(page.locator('.hero-content h1')).toContainText(

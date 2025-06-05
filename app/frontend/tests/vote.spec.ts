@@ -17,7 +17,7 @@ test.describe('Voting System', () => {
       });
     });
 
-    await page.route('/api/memes/1/vote', async (route) => {
+    await page.route('/api/memes/1/comments', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -26,6 +26,16 @@ test.describe('Voting System', () => {
           comments: [],
         }),
       });
+    });
+
+    await page.route('/api/memes/1/vote', async (route) => {
+      if (route.request().method() === 'GET') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ vote: 0 }),
+        });
+      }
     });
 
     await page.addInitScript(() => {
@@ -58,11 +68,11 @@ test.describe('Voting System', () => {
     await expect(page.locator('.meme-title')).toContainText('test-meme');
 
     await expect(page.locator('.vote-container')).toBeVisible();
-    await expect(page.locator('.upvote-btn')).toBeVisible();
+    await expect(page.locator('.vote-btn.upvote')).toBeVisible();
 
-    await page.click('.upvote-btn');
+    await page.click('.vote-btn.upvote');
 
-    await expect(page.locator('.upvote-btn.active')).toBeVisible();
+    await expect(page.locator('.vote-btn.upvote.active')).toBeVisible();
   });
 
   test('should remove vote when clicking same button', async ({ page }) => {
@@ -89,11 +99,11 @@ test.describe('Voting System', () => {
 
     await expect(page.locator('.meme-title')).toContainText('test-meme');
 
-    await expect(page.locator('.upvote-btn.active')).toBeVisible();
+    await expect(page.locator('.vote-btn.upvote.active')).toBeVisible();
 
-    await page.click('.upvote-btn');
+    await page.click('.vote-btn.upvote');
 
-    await expect(page.locator('.upvote-btn.active')).not.toBeVisible();
-    await expect(page.locator('.downvote-btn.active')).not.toBeVisible();
+    await expect(page.locator('.vote-btn.upvote.active')).not.toBeVisible();
+    await expect(page.locator('.vote-btn.downvote.active')).not.toBeVisible();
   });
 });

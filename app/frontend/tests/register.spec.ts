@@ -6,13 +6,13 @@ test.describe('Register', () => {
   });
 
   test('should display register form', async ({ page }) => {
-    await expect(page.locator('.text-center')).toContainText(
-      'Registrati a Meme Museum'
-    );
+    await expect(
+      page.getByRole('heading', { name: 'Registrati a Meme Museum' })
+    ).toBeVisible();
     await expect(page.locator('#username')).toBeVisible();
     await expect(page.locator('#email')).toBeVisible();
     await expect(page.locator('#password')).toBeVisible();
-    await expect(page.locator('button[type="submit"]')).toContainText(
+    await expect(page.locator('button.btn.btn-primary')).toContainText(
       'Registrati'
     );
   });
@@ -20,15 +20,15 @@ test.describe('Register', () => {
   test('should show validation errors for empty fields', async ({ page }) => {
     await expect(page.locator('form')).toBeVisible();
 
-    await page.click('button[type="submit"]');
+    await page.click('button.btn.btn-primary');
 
-    await expect(page.locator('.invalid-feedback')).toContainText(
+    await expect(page.locator('#username + .invalid-feedback')).toContainText(
       'Username richiesto'
     );
-    await expect(page.locator('.invalid-feedback')).toContainText(
+    await expect(page.locator('#email + .invalid-feedback')).toContainText(
       'Email richiesta'
     );
-    await expect(page.locator('.invalid-feedback')).toContainText(
+    await expect(page.locator('#password + .invalid-feedback')).toContainText(
       'Password richiesta'
     );
   });
@@ -51,7 +51,7 @@ test.describe('Register', () => {
     await page.fill('#username', username);
     await page.fill('#email', email);
     await page.fill('#password', 'password123');
-    await page.click('button[type="submit"]');
+    await page.click('button.btn.btn-primary');
 
     await expect(page).toHaveURL('/login');
 

@@ -51,15 +51,19 @@ UPLOAD_DIR=/data/uploads            # Directory for store images
 4. Run the project with:
 
 ```bash
-docker compose up app postgres flyway
+docker compose up
 ```
 
 ## Testing
 
-To run the test e2e:
+To run the test e2e locally:
 
 ```bash
-docker compose up e2e
+docker compose up                   # To run the server
+
+cd app/frontend
+npm install
+npm run e2e
 ```
 
 ## ScreenShots

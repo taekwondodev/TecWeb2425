@@ -3,6 +3,7 @@
 Dockerfile
 .dockerignore
 .gitignore
+README.md
 frontend/.angular/cache
 frontend/.vscode
 frontend/node_modules
@@ -11,3 +12,5 @@ frontend/.editorconfig
 frontend/.gitignore
 frontend/playwright-report/
 frontend/test-results/
+backend/.gitignore
+migrations/

@@ -1,7 +1,7 @@
 services:
   app:
     build:
-      context: ./app
+      context: .
       dockerfile: Dockerfile
     container_name: mememuseum
     env_file:

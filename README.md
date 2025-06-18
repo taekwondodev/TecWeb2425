@@ -61,8 +61,9 @@ To run the test e2e locally:
 ```bash
 docker compose up                   # To run the server
 
-cd app/frontend
+cd frontend
 npm install
+npx playwright install
 npm run e2e
 ```
 

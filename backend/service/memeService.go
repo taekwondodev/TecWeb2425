@@ -15,10 +15,10 @@ import (
 	"path/filepath"
 	"slices"
 	"strconv"
-	"sync"
 	"time"
 
 	"golang.org/x/sync/errgroup"
+	"golang.org/x/sync/singleflight"
 )
 
 type MemeService interface {
@@ -31,10 +31,10 @@ type MemeService interface {
 }
 
 type MemeServiceImpl struct {
-	repo       repository.MemeRepository
-	cache      *models.Meme
-	lastUpdate time.Time
-	mu         sync.RWMutex
+	repo      repository.MemeRepository
+	sfGroup   singleflight.Group
+	cache     *models.Meme
+	cacheDate string
 }
 
 func NewMemeService(repo repository.MemeRepository) MemeService {
@@ -75,33 +75,32 @@ func (s *MemeServiceImpl) GetMemes(ctx context.Context, page int, pageSize int, 
 }
 
 func (s *MemeServiceImpl) GetDailyMeme() (*models.Meme, error) {
-	// read only
-	s.mu.RLock()
-	cached := s.cache
-	lastUpdate := s.lastUpdate
-	s.mu.RUnlock()
+	today := time.Now().Format("2006-01-02")
 
-	if isCacheValid(cached, lastUpdate) {
-		return cached, nil
-	}
-
-	// write lock
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if isCacheValid(s.cache, s.lastUpdate) {
+	if isCacheValid(s.cacheDate, today, s.cache) {
 		return s.cache, nil
 	}
 
-	meme, err := s.repo.GetRandomMeme()
+	v, err, _ := s.sfGroup.Do("daily-meme-"+today, func() (any, error) {
+		if isCacheValid(s.cacheDate, today, s.cache) {
+			return s.cache, nil
+		}
+
+		meme, err := s.repo.GetRandomMeme()
+		if err != nil {
+			return nil, err
+		}
+
+		s.cache = meme
+		s.cacheDate = today
+		return meme, nil
+	})
+
 	if err != nil {
 		return nil, err
 	}
 
-	s.cache = meme
-	s.lastUpdate = time.Now()
-
-	return meme, nil
+	return v.(*models.Meme), nil
 }
 
 func (s *MemeServiceImpl) GetMemeById(id int) (*models.Meme, error) {
@@ -180,11 +179,11 @@ func (s *MemeServiceImpl) VoteMeme(ctx context.Context, id, memeId, vote int) (*
 	}
 
 	var removed bool
-	switch {
-	case actualVote == vote:
+	switch actualVote {
+	case vote:
 		err = removeVote(ctx, tx, id, memeId, vote)
 		removed = true
-	case actualVote == -vote:
+	case -vote:
 		err = switchVoteUpdate(ctx, tx, id, memeId, vote, actualVote)
 	default:
 		err = newVote(ctx, tx, id, memeId, vote)
@@ -228,8 +227,8 @@ func (s *MemeServiceImpl) saveFile(src multipart.File, dstPath string) error {
 	return nil
 }
 
-func isCacheValid(cache *models.Meme, lastUpdate time.Time) bool {
-	return cache != nil && time.Since(lastUpdate) < 24*time.Hour
+func isCacheValid(cacheDate string, today string, cache *models.Meme) bool {
+	return cacheDate == today && cache != nil
 }
 
 func removeVote(ctx context.Context, tx repository.VoteRepository, id, memeId, vote int) error {
